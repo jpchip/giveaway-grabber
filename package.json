@@ -1,0 +1,23 @@
+{
+  "name": "giveaway-grabber",
+  "version": "0.0.1",
+  "description": "Automates entries for Amazon Giveways",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jpchip/giveaway-grabber.git"
+  },
+  "keywords": [
+    "amazon",
+    "giveaways"
+  ],
+  "author": "Jared Chapiewsky",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jpchip/giveaway-grabber/issues"
+  },
+  "homepage": "https://github.com/jpchip/giveaway-grabber#readme"
+}
