@@ -1,11 +1,12 @@
 {
   "name": "giveaway-grabber",
   "version": "0.0.1",
-  "description": "Automates entries for Amazon Giveways",
+  "description": "Automates entries for Amazon Giveaways",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start" : "node index.js"
+    "start": "node index.js",
+    "lint": "eslint index.js"
   },
   "repository": {
     "type": "git",
@@ -22,6 +23,10 @@
   },
   "homepage": "https://github.com/jpchip/giveaway-grabber#readme",
   "dependencies": {
+    "dotenv": "^6.1.0",
     "puppeteer": "^1.11.0"
+  },
+  "devDependencies": {
+    "eslint": "^5.9.0"
   }
 }
