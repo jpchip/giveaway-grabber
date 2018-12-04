@@ -16,5 +16,3 @@ $ npm start
 ```
 
 Check the console to see how things are going.
-
-To run in browser, change `HEADLESS=0` in .env file to `HEADLESS=1`.
