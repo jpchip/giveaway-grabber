@@ -2,7 +2,7 @@
 
 This script will loop through all your Amazon giveaways and try to submit entries for them. 
 
-**WIP** - "no entry requirement" giveaways are implemented for first page. Need to include page iteration next.
+**WIP** - Only "no entry requirement" giveaways are implemented.
 
 Wanted a reason to experiment with puppeteer, so here goes.
 
@@ -11,8 +11,10 @@ Wanted a reason to experiment with puppeteer, so here goes.
 Copy .env.example to .env, adding your own Amazon username and password.
 
 ```javascript
-$ NPM install
-$ NPM start
+$ npm install
+$ npm start
 ```
 
 Check the console to see how things are going.
+
+To run in browser, change `HEADLESS=0` in .env file to `HEADLESS=1`.
