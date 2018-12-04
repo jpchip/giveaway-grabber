@@ -56,9 +56,13 @@ async function enterGiveaways(page, pageNumber) {
 			console.log('waiting for box...');
 			await page.waitForSelector('#box_click_target');
 			await page.click('#box_click_target', {delay: 2000});
-			const resultTextEl = await page.waitForSelector('.qa-giveaway-result-text');
-			const resultText = await page.evaluate(resultTextEl => resultTextEl.textContent, resultTextEl);
-			console.log(resultText);
+			try{
+				const resultTextEl = await page.waitForSelector('.qa-giveaway-result-text');
+				const resultText = await page.evaluate(resultTextEl => resultTextEl.textContent, resultTextEl);
+				console.log(resultText);
+			} catch(error) {
+				console.log('could not get result, oh well. Moving on!');
+			}
 
 			await navigateBackToGiveaways(page);
 		} else {
@@ -101,8 +105,7 @@ async function signIn(page, username, password) {
 
 //start index code
 (async () => {
-	const headless = (process.env.HEADLESS === 1);
-	const browser = await puppeteer.launch({headless: headless});
+	const browser = await puppeteer.launch({headless: false});
 	const page = await browser.newPage();
 
 	//sign in

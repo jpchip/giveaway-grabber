@@ -14,7 +14,3 @@ Copy .env.example to .env, adding your own Amazon username and password.
 $ npm install
 $ npm start
 ```
-
-Check the console to see how things are going.
-
-To run in browser, change `HEADLESS=1` in .env file to `HEADLESS=0`.
