@@ -111,7 +111,7 @@ async function signIn(page, username, password) {
 	await signIn(page, username, password);
 
 	//go to giveaways
-	await page.goto('https://www.amazon.com/ga/giveaways?pageId=50');
+	await page.goto('https://www.amazon.com/ga/giveaways');
 
 	//enter giveaways
 	await enterGiveaways(page, 1);
