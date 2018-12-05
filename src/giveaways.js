@@ -1,4 +1,4 @@
-const { asyncForEach } = require('./src/utils');
+const { asyncForEach } = require('./utils');
 
 /**
  * Checks if giveaway has already been entered
@@ -35,10 +35,39 @@ async function navigateToGiveaway(page, giveawayNumber) {
  * @returns {Promise<void>}
  */
 async function enterNoEntryRequirementGiveaway(page) {
-	//try to win!
 	console.log('waiting for box...');
 	await page.waitForSelector('#box_click_target');
 	await page.click('#box_click_target', {delay: 2000});
+	try{
+		const resultTextEl = await page.waitForSelector('.qa-giveaway-result-text');
+		const resultText = await page.evaluate(resultTextEl => resultTextEl.textContent, resultTextEl);
+		console.log(resultText);
+	} catch(error) {
+		console.log('could not get result, oh well. Moving on!');
+	}
+}
+
+/**
+ * Attempts to enter a video requirement type giveaway
+ * @param {Puppeteer.Page} page
+ * @returns {Promise<void>}
+ */
+async function enterVideoGiveaway(page) {
+	console.log('waiting for video (~15 secs)...');
+
+	try {
+		await page.waitForSelector('#youtube-iframe');
+	} catch(error) {
+		console.log('could not find video, oh well. Moving on!');
+		return;
+	}
+	await page.click('#youtube-iframe');
+
+	await page.waitFor(15000);
+
+	await page.waitForSelector('#videoSubmitForm > .a-button-stack > #enter-youtube-video-button > .a-button-inner > .a-button-input');
+	await page.click('#videoSubmitForm > .a-button-stack > #enter-youtube-video-button > .a-button-inner > .a-button-input');
+
 	try{
 		const resultTextEl = await page.waitForSelector('.qa-giveaway-result-text');
 		const resultText = await page.evaluate(resultTextEl => resultTextEl.textContent, resultTextEl);
@@ -69,6 +98,8 @@ async function enterGiveaways(page, pageNumber) {
 
 		//only do "no entry requirement" giveaways (for now)
 		const noEntryRequired = await page.$x('//*[@id="giveaway-item-' + i +'"]/a/div[2]/div[2]/span[contains(text(), "No entry requirement")]');
+		const videoRequired = await page.$x('//*[@id="giveaway-item-' + i +'"]/a/div[2]/div[2]/span[contains(text(), "Watch a short video")]');
+
 		if (noEntryRequired.length > 0) {
 			await navigateToGiveaway(page, i);
 
@@ -85,6 +116,22 @@ async function enterGiveaways(page, pageNumber) {
 			//try to win!
 			await enterNoEntryRequirementGiveaway(page);
 
+			await page.goBack();
+		} else if(videoRequired.length > 0) {
+			await navigateToGiveaway(page, i);
+
+			//check if already entered
+			let isAlreadyEntered = await alreadyEntered(page);
+			if (isAlreadyEntered) {
+				console.log('giveaway ' + i + ' already entered.');
+				await page.goBack();
+				return;
+			} else {
+				console.log('giveaway ' + i + ' is ready!');
+			}
+
+			//try to win!
+			await enterVideoGiveaway(page);
 			await page.goBack();
 		} else {
 			console.log('giveaway ' + i + ' requires entry.');
