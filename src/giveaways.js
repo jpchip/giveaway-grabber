@@ -18,6 +18,48 @@ async function alreadyEntered(page) {
 }
 
 /**
+ * Check if we've been redirected to switch account page,
+ * and if so, click to log back in
+ * @param {Puppeteer.Page} page
+ * @returns {Promise<void>}
+ */
+async function checkForSwitchAccount(page) {
+	try {
+		await page.waitForSelector('.cvf-widget-form-account-switcher', { timeout: 500 });
+		console.log('Whoa, got to re-signin!');
+		const switchAccountPromise = page.waitForNavigation();
+		await page.click('.cvf-widget-form-account-switcher');
+		await switchAccountPromise;
+	} catch(error) {
+		//nothing to do here...
+	}
+}
+
+/**
+ * Check if we've been redirected to enter password page,
+ * and if so, click to log back in
+ * @param {Puppeteer.Page} page
+ * @returns {Promise<void>}
+ */
+async function checkForPassword(page) {
+	try {
+		await page.waitForSelector('#ap_password', { timeout: 500 });
+		console.log('Whoa, got to re-enter password!');
+		await page.click('#ap_password');
+		await page.type('#ap_password', process.env.AMAZON_PASSWORD);
+
+		const signInPromise = page.waitForNavigation();
+		await page.waitForSelector('#signInSubmit');
+		await page.click('#signInSubmit');
+		await signInPromise;
+
+	} catch(error) {
+		//nothing to do here...
+	}
+}
+
+
+/**
  * Clicks on given number giveaway
  * @param {Puppeteer.Page} page
  * @param {number} giveawayNumber
@@ -36,6 +78,7 @@ async function navigateToGiveaway(page, giveawayNumber) {
  */
 async function enterNoEntryRequirementGiveaway(page) {
 	console.log('waiting for box...');
+	await checkForSwitchAccount(page);
 	await page.waitForSelector('#box_click_target');
 	await page.click('#box_click_target', {delay: 2000});
 	try{
@@ -55,6 +98,7 @@ async function enterNoEntryRequirementGiveaway(page) {
 async function enterVideoGiveaway(page) {
 	console.log('waiting for video (~15 secs)...');
 
+	await checkForSwitchAccount(page);
 	try {
 		await page.waitForSelector('#youtube-iframe');
 	} catch(error) {
@@ -117,6 +161,7 @@ async function enterGiveaways(page, pageNumber) {
 			await enterNoEntryRequirementGiveaway(page);
 
 			await page.goBack();
+			await checkForPassword(page);
 		} else if(videoRequired.length > 0) {
 			await navigateToGiveaway(page, i);
 
@@ -133,6 +178,7 @@ async function enterGiveaways(page, pageNumber) {
 			//try to win!
 			await enterVideoGiveaway(page);
 			await page.goBack();
+			await checkForPassword(page);
 		} else {
 			console.log('giveaway ' + i + ' requires entry.');
 		}
