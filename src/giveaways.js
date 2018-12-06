@@ -37,7 +37,8 @@ async function checkForSwitchAccount(page) {
 
 /**
  * Check if we've been redirected to enter password page,
- * and if so, click to log back in
+ * and if so, enter password and click to log back in
+ * @todo should be in signin.js?
  * @param {Puppeteer.Page} page
  * @returns {Promise<void>}
  */
