@@ -128,12 +128,17 @@ async function enterVideoGiveaway(page) {
 		console.log('could not find video, oh well. Moving on!');
 		return;
 	}
-	await page.click('#youtube-iframe');
 
+	await page.click('#youtube-iframe');
 	await page.waitFor(15000);
 
-	await page.waitForSelector('#videoSubmitForm > .a-button-stack > #enter-youtube-video-button > .a-button-inner > .a-button-input');
-	await page.click('#videoSubmitForm > .a-button-stack > #enter-youtube-video-button > .a-button-inner > .a-button-input');
+	try {
+		await page.waitForSelector('#videoSubmitForm > .a-button-stack > #enter-youtube-video-button > .a-button-inner > .a-button-input');
+		await page.click('#videoSubmitForm > .a-button-stack > #enter-youtube-video-button > .a-button-inner > .a-button-input');
+	} catch(error) {
+		console.log('no submit button found, oh well. Moving on!');
+		return;
+	}
 
 	try{
 		const resultTextEl = await page.waitForSelector('.qa-giveaway-result-text');
