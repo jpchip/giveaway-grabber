@@ -2,11 +2,15 @@
   "name": "giveaway-grabber",
   "version": "0.2.0",
   "description": "Automates entries for Amazon Giveaways",
+  "preferGlobal": true,
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
     "lint": "eslint ."
+  },
+  "bin": {
+    "gg": "index.js"
   },
   "repository": {
     "type": "git",

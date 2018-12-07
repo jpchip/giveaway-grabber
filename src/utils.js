@@ -1,7 +1,7 @@
 /**
  * Foreach loop for async functions
  * @param {Array} array
- * @param {} callback
+ * @param {utils~asyncForEachCallback} callback
  * @returns {Promise<void>}
  */
 async function asyncForEach(array, callback) {
@@ -15,5 +15,9 @@ module.exports = {
 };
 
 /**
- * Callback function for asyncForEach
+ * The callback that will be called with each value in array
+ * @callback utils~asyncForEachCallback
+ * @param {*} value
+ * @param {number} index
+ * @param {Array} array
  */

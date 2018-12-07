@@ -8,12 +8,19 @@ const signIn = require('./src/signIn');
 
 //start index code
 (async () => {
+
+
+	const username = process.env.AMAZON_USERNAME || args.username;
+	const password = process.env.AMAZON_PASSWORD || args.password;
+	if (!username || !password) {
+		console.error('Missing required username and/or password!');
+		return;
+	}
+
 	const browser = await puppeteer.launch({headless: false});
 	const page = await browser.newPage();
 
 	//sign in
-	const username = process.env.AMAZON_USERNAME;
-	const password = process.env.AMAZON_PASSWORD;
 	await signIn(page, username, password);
 
 	//go to giveaways
