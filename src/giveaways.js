@@ -28,7 +28,7 @@ async function checkForSwitchAccount(page) {
 		await page.waitForSelector('.cvf-widget-form-account-switcher', { timeout: 500 });
 		console.log('Whoa, got to re-signin!');
 		const switchAccountPromise = page.waitForNavigation();
-		await page.click('.cvf-widget-form-account-switcher');
+		await page.click('.cvf-account-switcher-spacing-top-micro');
 		await switchAccountPromise;
 	} catch(error) {
 		//nothing to do here...
@@ -42,23 +42,40 @@ async function checkForSwitchAccount(page) {
  * @param {Puppeteer.Page} page
  * @returns {Promise<void>}
  */
-async function checkForPassword(page) {
+async function checkForPassword(page, pageNumber) {
 	try {
 		await page.waitForSelector('#ap_password', { timeout: 500 });
 		console.log('Whoa, got to re-enter password!');
-		await page.click('#ap_password');
-		await page.type('#ap_password', process.env.AMAZON_PASSWORD);
-
-		const signInPromise = page.waitForNavigation();
-		await page.waitForSelector('#signInSubmit');
-		await page.click('#signInSubmit');
-		await signInPromise;
-
 	} catch(error) {
-		//nothing to do here...
+		//no password field so return
+		return;
 	}
+
+	await page.click('#ap_password');
+	await page.type('#ap_password', process.env.AMAZON_PASSWORD);
+
+	await page.waitForSelector('#signInSubmit');
+	const signInPromise = page.waitForNavigation();
+	await page.click('#signInSubmit');
+	await signInPromise;
+
+	await page.goto('https://www.amazon.com/ga/giveaways?pageId=' + pageNumber);
+
 }
 
+/**
+ * Check if giveaway has ended
+ * @param {Puppeteer.Page} page
+ * @returns {Promise<boolean>}
+ */
+async function hasGiveawayEnded(page) {
+	try {
+		await page.waitForSelector('#giveaway-ended-header', { timeout: 500 });
+	} catch(error) {
+		return false;
+	}
+	return true;
+}
 
 /**
  * Clicks on given number giveaway
@@ -80,8 +97,13 @@ async function navigateToGiveaway(page, giveawayNumber) {
 async function enterNoEntryRequirementGiveaway(page) {
 	console.log('waiting for box...');
 	await checkForSwitchAccount(page);
-	await page.waitForSelector('#box_click_target');
-	await page.click('#box_click_target', {delay: 2000});
+	try{
+		await page.waitForSelector('#box_click_target');
+		await page.click('#box_click_target', {delay: 2000});
+	} catch(error) {
+		console.log('could not find box?');
+	}
+
 	try{
 		const resultTextEl = await page.waitForSelector('.qa-giveaway-result-text');
 		const resultText = await page.evaluate(resultTextEl => resultTextEl.textContent, resultTextEl);
@@ -101,7 +123,7 @@ async function enterVideoGiveaway(page) {
 
 	await checkForSwitchAccount(page);
 	try {
-		await page.waitForSelector('#youtube-iframe');
+		await page.waitForSelector('#youtube-iframe', { timeout: 1000 });
 	} catch(error) {
 		console.log('could not find video, oh well. Moving on!');
 		return;
@@ -145,8 +167,16 @@ async function enterGiveaways(page, pageNumber) {
 		const noEntryRequired = await page.$x('//*[@id="giveaway-item-' + i +'"]/a/div[2]/div[2]/span[contains(text(), "No entry requirement")]');
 		const videoRequired = await page.$x('//*[@id="giveaway-item-' + i +'"]/a/div[2]/div[2]/span[contains(text(), "Watch a short video")]');
 
-		if (noEntryRequired.length > 0) {
+		if (noEntryRequired.length > 0 || videoRequired.length > 0) {
 			await navigateToGiveaway(page, i);
+
+			//check if ended
+			let ended = await hasGiveawayEnded(page);
+			if (ended) {
+				console.log('giveaway ' + i + ' ended.');
+				await page.goBack();
+				return;
+			}
 
 			//check if already entered
 			let isAlreadyEntered = await alreadyEntered(page);
@@ -159,29 +189,17 @@ async function enterGiveaways(page, pageNumber) {
 			}
 
 			//try to win!
-			await enterNoEntryRequirementGiveaway(page);
-
-			await page.goBack();
-			await checkForPassword(page);
-		} else if(videoRequired.length > 0) {
-			await navigateToGiveaway(page, i);
-
-			//check if already entered
-			let isAlreadyEntered = await alreadyEntered(page);
-			if (isAlreadyEntered) {
-				console.log('giveaway ' + i + ' already entered.');
-				await page.goBack();
-				return;
-			} else {
-				console.log('giveaway ' + i + ' is ready!');
+			if (noEntryRequired.length > 0) {
+				await enterNoEntryRequirementGiveaway(page);
+			} else if (videoRequired.length > 0) {
+				await enterVideoGiveaway(page);
 			}
 
-			//try to win!
-			await enterVideoGiveaway(page);
+			//go back
 			await page.goBack();
-			await checkForPassword(page);
+			await checkForPassword(page, pageNumber);
 		} else {
-			console.log('giveaway ' + i + ' requires entry.');
+			console.log('giveaway ' + i + ' cannot be entered.');
 		}
 	});
 
