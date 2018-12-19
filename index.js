@@ -8,14 +8,15 @@ const signIn = require('./src/signIn');
 
 //start index code
 (async () => {
-
-
 	const username = process.env.AMAZON_USERNAME || args.username;
 	const password = process.env.AMAZON_PASSWORD || args.password;
 	if (!username || !password) {
 		console.error('Missing required username and/or password!');
 		return;
 	}
+	//add to process.env to be used elsewhere if needed
+	process.env.AMAZON_USERNAME = username;
+	process.env.AMAZON_PASSWORD = password;
 
 	const browser = await puppeteer.launch({headless: false});
 	const page = await browser.newPage();
