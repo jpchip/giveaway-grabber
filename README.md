@@ -2,6 +2,8 @@
 
 # giveaway-grabber 🎁
 
+# NOTE: In the last few weeks/days, Amazon refactored their giveaway site and totally broke the giveaway-grabber (see https://github.com/jpchip/giveaway-grabber/issues/15). I will update readme when I get around to refactoring for the new site.
+
 This script will loop through all the [Amazon giveaways](https://www.amazon.com/ga/giveaways/) and try to submit entries for them. 
 
 Wanted a reason to experiment with [Puppeteer](https://github.com/GoogleChrome/puppeteer), so here goes.
