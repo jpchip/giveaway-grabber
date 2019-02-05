@@ -85,7 +85,7 @@ async function hasGiveawayEnded(page) {
  */
 async function navigateToGiveaway(page, giveawayNumber) {
 	const giveawayItemPromise = page.waitForNavigation();
-	await page.click('#giveaway-grid > #giveaway-item-' + giveawayNumber + ' > .a-link-normal > .a-section > .a-spacing-base');
+	await page.click(`ul.listing-info-container > li.a-section.a-spacing-base.listing-item:nth-of-type(${giveawayNumber}) a.item-link`);
 	await giveawayItemPromise;
 }
 
@@ -162,15 +162,15 @@ async function enterGiveaways(page, pageNumber) {
 	await asyncForEach(giveawayKeys, async (val, index) => {
 		let i = index + 1;
 		try{
-			await page.waitForSelector('#giveaway-grid > #giveaway-item-' + i, { timeout: 5000 });
+			await page.waitForSelector(`ul.listing-info-container > li.a-section.a-spacing-base.listing-item:nth-of-type(${i}) a.item-link`, { timeout: 5000 });
 		} catch(error) {
 			console.log('giveaway ' + i + ' did not exist?');
 			return;
 		}
 
 		//only do "no entry requirement" giveaways (for now)
-		const noEntryRequired = await page.$x('//*[@id="giveaway-item-' + i +'"]/a/div[2]/div[2]/span[contains(text(), "No entry requirement")]');
-		const videoRequired = await page.$x('//*[@id="giveaway-item-' + i +'"]/a/div[2]/div[2]/span[contains(text(), "Watch a short video")]');
+		const noEntryRequired = await page.$x(`//ul[@class="listing-info-container"]/li[${i}]//a/div[2]/div[2]/span[contains(text(), "No entry requirement")]`);
+		const videoRequired = await page.$x(`//ul[@class="listing-info-container"]/li[${i}]//a/div[2]/div[2]/span[contains(text(), "Watch a short video")]`);
 
 		if (noEntryRequired.length > 0 || videoRequired.length > 0) {
 			await navigateToGiveaway(page, i);
@@ -210,14 +210,15 @@ async function enterGiveaways(page, pageNumber) {
 
 	//go to next page, if we can
 	try {
-		await page.waitForSelector('.a-section > #giveawayListingPagination > .a-pagination > .a-last > a');
+		await page.waitForSelector('ul.a-pagination:last-child a');
 	} catch(e) {
+		console.log(e);
 		console.log('No more pages! Goodbye!');
 		return;
 	}
 
 	const navigationPromise = page.waitForNavigation();
-	await page.click('.a-section > #giveawayListingPagination > .a-pagination > .a-last > a');
+	await page.click('ul.a-pagination:last-child a');
 	await navigationPromise;
 
 	console.log('Next Page!');
