@@ -22,7 +22,7 @@ const signIn = require('./src/signIn');
 	const page = await browser.newPage();
 
 	//sign in
-	await signIn(page, username, password);
+	await signIn(page, username, password, args.hasOwnProperty('2FA'));
 
 	//go to giveaways
 	let url = 'https://www.amazon.com/ga/giveaways';
