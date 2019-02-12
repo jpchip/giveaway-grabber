@@ -84,7 +84,7 @@ async function hasGiveawayEnded(page) {
  * @returns {Promise<void>}
  */
 async function navigateToGiveaway(page, giveawayNumber) {
-	const giveawayItemPromise = page.waitForNavigation({ timeout: 60000 });
+	const giveawayItemPromise = page.waitForNavigation();
 	await page.click(`ul.listing-info-container > li.a-section.a-spacing-base.listing-item:nth-of-type(${giveawayNumber}) a.item-link`);
 	await giveawayItemPromise;
 }
@@ -102,7 +102,6 @@ async function enterNoEntryRequirementGiveaway(page) {
 		await page.click('#box_click_target', {delay: 2000});
 	} catch(error) {
 		console.log('could not find box?');
-		//check for captcha page here
 	}
 
 	try{
