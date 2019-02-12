@@ -49,6 +49,20 @@ OR:
 $ npm start -- --page=34
 ```
 
+If you have two factor authentication enabled, add `--2FA` flag:
+
+```bash
+$ gg --username=fake@example.com --password=123456 --2FA
+```
+
+OR:
+
+```bash
+$ npm start -- --2FA
+```
+
+The script will wait 60 seconds for you to enter your code.
+
 ## Questions
 
 If you have any questions, just [open an issue](https://github.com/jpchip/giveaway-grabber/issues/new).
