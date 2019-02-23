@@ -210,15 +210,14 @@ async function enterGiveaways(page, pageNumber) {
 
 	//go to next page, if we can
 	try {
-		await page.waitForSelector('ul.a-pagination li:last-child');
+		await page.waitForSelector('ul.a-pagination li:last-child:not(.a-disabled)');
 	} catch(e) {
-		console.log(e);
 		console.log('No more pages! Goodbye!');
 		return;
 	}
 
 	const navigationPromise = page.waitForNavigation();
-	await page.click('ul.a-pagination li:last-child');
+	await page.click('ul.a-pagination li:last-child:not(.a-disabled)');
 	await navigationPromise;
 
 	console.log('Next Page!');
