@@ -21,15 +21,13 @@ const signIn = require('./src/signIn');
 	const browser = await puppeteer.launch({headless: false});
 	const page = await browser.newPage();
 
-	//sign in
-	await signIn(page, username, password, args.hasOwnProperty('2FA'));
-
-	//go to giveaways
-	let url = 'https://www.amazon.com/ga/giveaways';
+	let pageNumber = 1;
 	if (args.page) {
-		url += '?pageId=' + args.page;
+		pageNumber = args.page;
 	}
-	await page.goto(url);
+
+	//sign in
+	await signIn(page, username, password, pageNumber, args.hasOwnProperty('2FA'));
 
 	//enter giveaways
 	await enterGiveaways(page, args.page || 1);
