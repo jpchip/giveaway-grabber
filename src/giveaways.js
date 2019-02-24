@@ -36,6 +36,23 @@ async function checkForSwitchAccount(page) {
 }
 
 /**
+ * Check if there's a captcha,
+ * and if so, wait until user enters it.
+ * @todo email user so they know it stopped?
+ * @param {Puppeteer.Page} page
+ * @returns {Promise<void>}
+ */
+async function checkForCaptcha(page) {
+	try {
+		await page.waitForSelector('#image_captcha', { timeout: 500 });
+		console.log('ENTER CAPTCHA!');
+		await page.waitFor(() => !document.querySelector("#image_captcha"), {timeout: 0});
+	} catch(error) {
+		//nothing to do here...
+	}
+}
+
+/**
  * Check if we've been redirected to enter password page,
  * and if so, enter password and click to log back in
  * @todo should be in signin.js?
@@ -97,6 +114,7 @@ async function navigateToGiveaway(page, giveawayNumber) {
 async function enterNoEntryRequirementGiveaway(page) {
 	console.log('waiting for box...');
 	await checkForSwitchAccount(page);
+	await checkForCaptcha(page);
 	try{
 		await page.waitForSelector('#box_click_target');
 		await page.click('#box_click_target', {delay: 2000});
@@ -119,9 +137,9 @@ async function enterNoEntryRequirementGiveaway(page) {
  * @returns {Promise<void>}
  */
 async function enterVideoGiveaway(page) {
-	console.log('waiting for video (~15 secs)...');
-
 	await checkForSwitchAccount(page);
+	await checkForCaptcha(page);
+	console.log('waiting for video (~15 secs)...');
 	try {
 		await page.waitForSelector('#youtube-iframe', { timeout: 1000 });
 	} catch(error) {
@@ -168,7 +186,6 @@ async function enterGiveaways(page, pageNumber) {
 			return;
 		}
 
-		//only do "no entry requirement" giveaways (for now)
 		const noEntryRequired = await page.$x(`//ul[@class="listing-info-container"]/li[${i}]//a/div[2]/div[2]/span[contains(text(), "No entry requirement")]`);
 		const videoRequired = await page.$x(`//ul[@class="listing-info-container"]/li[${i}]//a/div[2]/div[2]/span[contains(text(), "Watch a short video")]`);
 
