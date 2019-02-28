@@ -180,7 +180,7 @@ async function enterGiveaways(page, pageNumber) {
 	await asyncForEach(giveawayKeys, async (val, index) => {
 		let i = index + 1;
 		try{
-			await page.waitForSelector(`ul.listing-info-container > li.a-section.a-spacing-base.listing-item:nth-of-type(${i}) a.item-link`, { timeout: 5000 });
+			await page.waitForSelector(`.listing-info-container > .a-section:nth-of-type(${i})`, { timeout: 5000 });
 		} catch(error) {
 			console.log('giveaway ' + i + ' did not exist?');
 			return;
