@@ -57,6 +57,7 @@ async function checkForCaptcha(page) {
  * and if so, enter password and click to log back in
  * @todo should be in signin.js?
  * @param {Puppeteer.Page} page
+ * @param {number} [pageNumber]
  * @returns {Promise<void>}
  */
 async function checkForPassword(page, pageNumber) {
@@ -76,8 +77,9 @@ async function checkForPassword(page, pageNumber) {
 	await page.click('#signInSubmit');
 	await signInPromise;
 
-	await page.goto('https://www.amazon.com/ga/giveaways?pageId=' + pageNumber);
-
+	if(pageNumber) {
+		await page.goto('https://www.amazon.com/ga/giveaways?pageId=' + pageNumber);
+	}
 }
 
 /**
@@ -114,6 +116,7 @@ async function navigateToGiveaway(page, giveawayNumber) {
 async function enterNoEntryRequirementGiveaway(page) {
 	console.log('waiting for box...');
 	await checkForSwitchAccount(page);
+	await checkForPassword(page);
 	await checkForCaptcha(page);
 	try{
 		await page.waitForSelector('#box_click_target');
@@ -138,6 +141,7 @@ async function enterNoEntryRequirementGiveaway(page) {
  */
 async function enterVideoGiveaway(page) {
 	await checkForSwitchAccount(page);
+	await checkForPassword(page);
 	await checkForCaptcha(page);
 	console.log('waiting for video (~15 secs)...');
 	try {
