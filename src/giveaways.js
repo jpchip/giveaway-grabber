@@ -1,3 +1,4 @@
+/* global document */
 const { asyncForEach } = require('./utils');
 
 /**
@@ -46,7 +47,7 @@ async function checkForCaptcha(page) {
 	try {
 		await page.waitForSelector('#image_captcha', { timeout: 500 });
 		console.log('ENTER CAPTCHA!');
-		await page.waitFor(() => !document.querySelector("#image_captcha"), {timeout: 0});
+		await page.waitFor(() => !document.querySelector('#image_captcha'), {timeout: 0});
 	} catch(error) {
 		//nothing to do here...
 	}
@@ -77,7 +78,7 @@ async function checkForPassword(page, pageNumber) {
 	await page.click('#signInSubmit');
 	await signInPromise;
 
-	if(pageNumber) {
+	if (pageNumber) {
 		await page.goto('https://www.amazon.com/ga/giveaways?pageId=' + pageNumber);
 	}
 }
