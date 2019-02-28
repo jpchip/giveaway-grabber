@@ -61,7 +61,7 @@ OR:
 $ npm start -- --2FA
 ```
 
-The script will wait 60 seconds for you to enter your code.
+The script will wait for you to enter your code. 
 
 ### CAPTCHAs
 

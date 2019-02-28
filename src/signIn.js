@@ -26,7 +26,7 @@ module.exports = async function(page, username, password, pageNumber, twoFactorA
 
 	if (twoFactorAuth) {
 		//wait here until user submits two factor auth code
-		const twoFactorAuthPromise = page.waitForNavigation({ timeout: 60000 });
+		const twoFactorAuthPromise = page.waitForNavigation({ timeout: 0 });
 		await twoFactorAuthPromise;
 	}
 };

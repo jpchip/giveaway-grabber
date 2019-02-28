@@ -1,3 +1,4 @@
+/* global document */
 const { asyncForEach } = require('./utils');
 
 /**
@@ -46,7 +47,7 @@ async function checkForCaptcha(page) {
 	try {
 		await page.waitForSelector('#image_captcha', { timeout: 500 });
 		console.log('ENTER CAPTCHA!');
-		await page.waitFor(() => !document.querySelector("#image_captcha"), {timeout: 0});
+		await page.waitFor(() => !document.querySelector('#image_captcha'), {timeout: 0});
 	} catch(error) {
 		//nothing to do here...
 	}
@@ -57,6 +58,7 @@ async function checkForCaptcha(page) {
  * and if so, enter password and click to log back in
  * @todo should be in signin.js?
  * @param {Puppeteer.Page} page
+ * @param {number} [pageNumber]
  * @returns {Promise<void>}
  */
 async function checkForPassword(page, pageNumber) {
@@ -76,8 +78,9 @@ async function checkForPassword(page, pageNumber) {
 	await page.click('#signInSubmit');
 	await signInPromise;
 
-	await page.goto('https://www.amazon.com/ga/giveaways?pageId=' + pageNumber);
-
+	if (pageNumber) {
+		await page.goto('https://www.amazon.com/ga/giveaways?pageId=' + pageNumber);
+	}
 }
 
 /**
@@ -114,6 +117,7 @@ async function navigateToGiveaway(page, giveawayNumber) {
 async function enterNoEntryRequirementGiveaway(page) {
 	console.log('waiting for box...');
 	await checkForSwitchAccount(page);
+	await checkForPassword(page);
 	await checkForCaptcha(page);
 	try{
 		await page.waitForSelector('#box_click_target');
@@ -138,6 +142,7 @@ async function enterNoEntryRequirementGiveaway(page) {
  */
 async function enterVideoGiveaway(page) {
 	await checkForSwitchAccount(page);
+	await checkForPassword(page);
 	await checkForCaptcha(page);
 	console.log('waiting for video (~15 secs)...');
 	try {
@@ -180,7 +185,7 @@ async function enterGiveaways(page, pageNumber) {
 	await asyncForEach(giveawayKeys, async (val, index) => {
 		let i = index + 1;
 		try{
-			await page.waitForSelector(`ul.listing-info-container > li.a-section.a-spacing-base.listing-item:nth-of-type(${i}) a.item-link`, { timeout: 5000 });
+			await page.waitForSelector(`.listing-info-container > .a-section:nth-of-type(${i})`, { timeout: 5000 });
 		} catch(error) {
 			console.log('giveaway ' + i + ' did not exist?');
 			return;
