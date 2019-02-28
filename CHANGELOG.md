@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.2.1 - 2019-02-28
+### Fixed
+- Update readme to include section about CAPTCHAs (#19)[https://github.com/jpchip/giveaway-grabber/issues/19]
+- Fix selector for giveaways (#24)[https://github.com/jpchip/giveaway-grabber/issues/24]
+
+### Added
+ - Remove time limit on 2FA entry
+ - Checks for password re-entry request while waiting for box
+
+
 ## 2.2.0 - 2019-02-23
 ### Fixed
 - Error when at end of available sweep pages (#23)[https://github.com/jpchip/giveaway-grabber/issues/23]
