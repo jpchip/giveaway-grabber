@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.3.0 - 2019-03-15
+### Added
+ - captcha sends system notification (#26)[https://github.com/jpchip/giveaway-grabber/issues/26]
+
 ## 2.2.1 - 2019-02-28
 ### Fixed
 - Update readme to include section about CAPTCHAs (#19)[https://github.com/jpchip/giveaway-grabber/issues/19]
