@@ -66,7 +66,8 @@ The script will wait for you to enter your code.
 ### CAPTCHAs
 
 Every so often Amazon will present a CAPTCHA. The script will pause at this 
-point and wait for you to enter it. The console will warn you with an `ENTER CAPTCHA` message.
+point and wait for you to enter it. The console will warn you with an `ENTER CAPTCHA!` message,
+and you **should** get a system notification (only tested it on Windows 10).
 
 
 ## Questions
