@@ -1,5 +1,6 @@
 /* global document */
 const { asyncForEach } = require('./utils');
+const nn = require('node-notifier');
 
 /**
  * Checks if giveaway has already been entered
@@ -46,7 +47,17 @@ async function checkForSwitchAccount(page) {
 async function checkForCaptcha(page) {
 	try {
 		await page.waitForSelector('#image_captcha', { timeout: 500 });
-		console.log('ENTER CAPTCHA!');
+		const message = 'ENTER CAPTCHA!';
+		console.log(message);
+		const notification = {
+			title: 'giveaway-grabber',
+			message: message
+		};
+		new nn.NotificationCenter().notify(notification);
+		new nn.NotifySend().notify(notification);
+		new nn.WindowsToaster().notify(notification);
+		//new nn.WindowsBalloon().notify(notification);
+		new nn.Growl().notify(notification);
 		await page.waitFor(() => !document.querySelector('#image_captcha'), {timeout: 0});
 	} catch(error) {
 		//nothing to do here...
