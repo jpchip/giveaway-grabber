@@ -31,7 +31,6 @@ If cloned:
 Copy .env.example to .env, adding your own Amazon username and password.
 
 ```bash
-$ npm install
 $ npm start
 ```
 

@@ -6,6 +6,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "prestart": "npm install --production",
     "start": "node index.js",
     "lint": "eslint --fix .",
     "prepublish": "npm run lint"
@@ -41,7 +42,7 @@
   },
   "devDependencies": {
     "eslint": "~5.15.2",
-    "eslint-config-prettier": "~4.1.0",
+    "eslint-config-prettier": "^4.1.0",
     "eslint-plugin-prettier": "~3.0.1",
     "prettier": "~1.16.4"
   }

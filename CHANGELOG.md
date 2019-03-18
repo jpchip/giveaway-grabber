@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 2.4.0 - 2019-03-16
 ### Added
  - installed latest versions of all dependencies
- - Added Prettier
+ - added Prettier
+ - add prestart script to automatically install new dependencies
 
 ## 2.3.0 - 2019-03-15
 ### Added
