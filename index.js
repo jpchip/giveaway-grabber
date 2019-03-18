@@ -18,7 +18,7 @@ const signIn = require('./src/signIn');
 	process.env.AMAZON_USERNAME = username;
 	process.env.AMAZON_PASSWORD = password;
 
-	const browser = await puppeteer.launch({headless: false});
+	const browser = await puppeteer.launch({ headless: false });
 	const page = await browser.newPage();
 
 	let pageNumber = 1;
@@ -27,7 +27,13 @@ const signIn = require('./src/signIn');
 	}
 
 	//sign in
-	await signIn(page, username, password, pageNumber, args.hasOwnProperty('2FA'));
+	await signIn(
+		page,
+		username,
+		password,
+		pageNumber,
+		args.hasOwnProperty('2FA')
+	);
 
 	//enter giveaways
 	await enterGiveaways(page, args.page || 1);

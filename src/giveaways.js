@@ -10,10 +10,12 @@ const nn = require('node-notifier');
 async function alreadyEntered(page) {
 	//check if already entered
 	let alreadyEntered = false;
-	try{
-		await page.waitForSelector('.qa-giveaway-result-text', { timeout: 1000 });
+	try {
+		await page.waitForSelector('.qa-giveaway-result-text', {
+			timeout: 1000
+		});
 		alreadyEntered = true;
-	} catch(error) {
+	} catch (error) {
 		//nothing to do here...
 	}
 	return alreadyEntered;
@@ -27,12 +29,14 @@ async function alreadyEntered(page) {
  */
 async function checkForSwitchAccount(page) {
 	try {
-		await page.waitForSelector('.cvf-widget-form-account-switcher', { timeout: 500 });
+		await page.waitForSelector('.cvf-widget-form-account-switcher', {
+			timeout: 500
+		});
 		console.log('Whoa, got to re-signin!');
 		const switchAccountPromise = page.waitForNavigation();
 		await page.click('.cvf-account-switcher-spacing-top-micro');
 		await switchAccountPromise;
-	} catch(error) {
+	} catch (error) {
 		//nothing to do here...
 	}
 }
@@ -58,8 +62,10 @@ async function checkForCaptcha(page) {
 		new nn.WindowsToaster().notify(notification);
 		//new nn.WindowsBalloon().notify(notification);
 		new nn.Growl().notify(notification);
-		await page.waitFor(() => !document.querySelector('#image_captcha'), {timeout: 0});
-	} catch(error) {
+		await page.waitFor(() => !document.querySelector('#image_captcha'), {
+			timeout: 0
+		});
+	} catch (error) {
 		//nothing to do here...
 	}
 }
@@ -76,7 +82,7 @@ async function checkForPassword(page, pageNumber) {
 	try {
 		await page.waitForSelector('#ap_password', { timeout: 500 });
 		console.log('Whoa, got to re-enter password!');
-	} catch(error) {
+	} catch (error) {
 		//no password field so return
 		return;
 	}
@@ -90,7 +96,9 @@ async function checkForPassword(page, pageNumber) {
 	await signInPromise;
 
 	if (pageNumber) {
-		await page.goto('https://www.amazon.com/ga/giveaways?pageId=' + pageNumber);
+		await page.goto(
+			'https://www.amazon.com/ga/giveaways?pageId=' + pageNumber
+		);
 	}
 }
 
@@ -102,7 +110,7 @@ async function checkForPassword(page, pageNumber) {
 async function hasGiveawayEnded(page) {
 	try {
 		await page.waitForSelector('#giveaway-ended-header', { timeout: 500 });
-	} catch(error) {
+	} catch (error) {
 		return false;
 	}
 	return true;
@@ -116,7 +124,9 @@ async function hasGiveawayEnded(page) {
  */
 async function navigateToGiveaway(page, giveawayNumber) {
 	const giveawayItemPromise = page.waitForNavigation();
-	await page.click(`ul.listing-info-container > li.a-section.a-spacing-base.listing-item:nth-of-type(${giveawayNumber}) a.item-link`);
+	await page.click(
+		`ul.listing-info-container > li.a-section.a-spacing-base.listing-item:nth-of-type(${giveawayNumber}) a.item-link`
+	);
 	await giveawayItemPromise;
 }
 
@@ -130,18 +140,23 @@ async function enterNoEntryRequirementGiveaway(page) {
 	await checkForSwitchAccount(page);
 	await checkForPassword(page);
 	await checkForCaptcha(page);
-	try{
+	try {
 		await page.waitForSelector('#box_click_target');
-		await page.click('#box_click_target', {delay: 2000});
-	} catch(error) {
+		await page.click('#box_click_target', { delay: 2000 });
+	} catch (error) {
 		console.log('could not find box?');
 	}
 
-	try{
-		const resultTextEl = await page.waitForSelector('.qa-giveaway-result-text');
-		const resultText = await page.evaluate(resultTextEl => resultTextEl.textContent, resultTextEl);
+	try {
+		const resultTextEl = await page.waitForSelector(
+			'.qa-giveaway-result-text'
+		);
+		const resultText = await page.evaluate(
+			resultTextEl => resultTextEl.textContent,
+			resultTextEl
+		);
 		console.log(resultText);
-	} catch(error) {
+	} catch (error) {
 		console.log('could not get result, oh well. Moving on!');
 	}
 }
@@ -158,7 +173,7 @@ async function enterVideoGiveaway(page) {
 	console.log('waiting for video (~15 secs)...');
 	try {
 		await page.waitForSelector('#youtube-iframe', { timeout: 1000 });
-	} catch(error) {
+	} catch (error) {
 		console.log('could not find video, oh well. Moving on!');
 		return;
 	}
@@ -167,18 +182,27 @@ async function enterVideoGiveaway(page) {
 	await page.waitFor(15000);
 
 	try {
-		await page.waitForSelector('#videoSubmitForm > .a-button-stack > #enter-youtube-video-button > .a-button-inner > .a-button-input');
-		await page.click('#videoSubmitForm > .a-button-stack > #enter-youtube-video-button > .a-button-inner > .a-button-input');
-	} catch(error) {
+		await page.waitForSelector(
+			'#videoSubmitForm > .a-button-stack > #enter-youtube-video-button > .a-button-inner > .a-button-input'
+		);
+		await page.click(
+			'#videoSubmitForm > .a-button-stack > #enter-youtube-video-button > .a-button-inner > .a-button-input'
+		);
+	} catch (error) {
 		console.log('no submit button found, oh well. Moving on!');
 		return;
 	}
 
-	try{
-		const resultTextEl = await page.waitForSelector('.qa-giveaway-result-text');
-		const resultText = await page.evaluate(resultTextEl => resultTextEl.textContent, resultTextEl);
+	try {
+		const resultTextEl = await page.waitForSelector(
+			'.qa-giveaway-result-text'
+		);
+		const resultText = await page.evaluate(
+			resultTextEl => resultTextEl.textContent,
+			resultTextEl
+		);
 		console.log(resultText);
-	} catch(error) {
+	} catch (error) {
 		console.log('could not get result, oh well. Moving on!');
 	}
 }
@@ -195,15 +219,22 @@ async function enterGiveaways(page, pageNumber) {
 	const giveawayKeys = new Array(24);
 	await asyncForEach(giveawayKeys, async (val, index) => {
 		let i = index + 1;
-		try{
-			await page.waitForSelector(`.listing-info-container > .a-section:nth-of-type(${i})`, { timeout: 5000 });
-		} catch(error) {
+		try {
+			await page.waitForSelector(
+				`.listing-info-container > .a-section:nth-of-type(${i})`,
+				{ timeout: 5000 }
+			);
+		} catch (error) {
 			console.log('giveaway ' + i + ' did not exist?');
 			return;
 		}
 
-		const noEntryRequired = await page.$x(`//ul[@class="listing-info-container"]/li[${i}]//a/div[2]/div[2]/span[contains(text(), "No entry requirement")]`);
-		const videoRequired = await page.$x(`//ul[@class="listing-info-container"]/li[${i}]//a/div[2]/div[2]/span[contains(text(), "Watch a short video")]`);
+		const noEntryRequired = await page.$x(
+			`//ul[@class="listing-info-container"]/li[${i}]//a/div[2]/div[2]/span[contains(text(), "No entry requirement")]`
+		);
+		const videoRequired = await page.$x(
+			`//ul[@class="listing-info-container"]/li[${i}]//a/div[2]/div[2]/span[contains(text(), "Watch a short video")]`
+		);
 
 		if (noEntryRequired.length > 0 || videoRequired.length > 0) {
 			await navigateToGiveaway(page, i);
@@ -243,8 +274,10 @@ async function enterGiveaways(page, pageNumber) {
 
 	//go to next page, if we can
 	try {
-		await page.waitForSelector('ul.a-pagination li:last-child:not(.a-disabled)');
-	} catch(e) {
+		await page.waitForSelector(
+			'ul.a-pagination li:last-child:not(.a-disabled)'
+		);
+	} catch (e) {
 		console.log('No more pages! Goodbye!');
 		return;
 	}

@@ -1,13 +1,15 @@
 {
   "name": "giveaway-grabber",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "Automates entries for Amazon Giveaways",
   "preferGlobal": true,
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "prestart": "npm install --production",
     "start": "node index.js",
-    "lint": "eslint ."
+    "lint": "eslint --fix .",
+    "prepublish": "npm run lint"
   },
   "bin": {
     "gg": "index.js"
@@ -33,12 +35,15 @@
   },
   "homepage": "https://github.com/jpchip/giveaway-grabber#readme",
   "dependencies": {
-    "dotenv": "^6.1.0",
-    "node-notifier": "^5.4.0",
-    "puppeteer": "^1.11.0",
-    "yargs": "^12.0.5"
+    "dotenv": "~6.2.0",
+    "node-notifier": "~5.4.0",
+    "puppeteer": "~1.13.0",
+    "yargs": "~13.2.2"
   },
   "devDependencies": {
-    "eslint": "^5.9.0"
+    "eslint": "~5.15.2",
+    "eslint-config-prettier": "^4.1.0",
+    "eslint-plugin-prettier": "~3.0.1",
+    "prettier": "~1.16.4"
   }
 }
