@@ -4,7 +4,7 @@
 
 This script will loop through all the [Amazon giveaways](https://www.amazon.com/ga/giveaways/) and try to submit entries for them. 
 
-Wanted a reason to experiment with [Puppeteer](https://github.com/GoogleChrome/puppeteer), so here goes.
+I wanted a reason to experiment with [Puppeteer](https://github.com/GoogleChrome/puppeteer), so here goes.
 
 Note: does not support entries that require following someone.
 
@@ -48,6 +48,8 @@ OR:
 $ npm start -- --page=34
 ```
 
+### Two factor authentication
+
 If you have two factor authentication enabled, add `--2FA` flag:
 
 ```bash
@@ -68,6 +70,13 @@ Every so often Amazon will present a CAPTCHA. The script will pause at this
 point and wait for you to enter it. The console will warn you with an `ENTER CAPTCHA!` message,
 and you **should** get a system notification (only tested it on Windows 10).
 
+
+### Winning
+
+If you are lucky enough to win, you should get a system notification and the url to
+the page will be logged like `Winning Entry URL: https://amazon.com/ga/p/335..`.
+
+Good luck!
 
 ## Questions
 
