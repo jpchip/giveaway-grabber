@@ -1,3 +1,5 @@
+const nn = require('node-notifier');
+
 /**
  * Foreach loop for async functions
  * @param {Array} array
@@ -10,8 +12,27 @@ async function asyncForEach(array, callback) {
 	}
 }
 
+/**
+ * @typedef {Object} Notification
+ * @property {string} title
+ * @property {string} message
+ */
+
+/**
+ * Sends system notification
+ * @param {Notification} notification
+ */
+function sendSystemNotification(notification) {
+	new nn.NotificationCenter().notify(notification);
+	new nn.NotifySend().notify(notification);
+	new nn.WindowsToaster().notify(notification);
+	//new nn.WindowsBalloon().notify(notification);
+	new nn.Growl().notify(notification);
+}
+
 module.exports = {
-	asyncForEach
+	asyncForEach,
+	sendSystemNotification
 };
 
 /**

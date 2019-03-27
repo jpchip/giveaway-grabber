@@ -1,6 +1,5 @@
 /* global document */
-const { asyncForEach } = require('./utils');
-const nn = require('node-notifier');
+const { asyncForEach, sendSystemNotification } = require('./utils');
 
 /**
  * Checks if giveaway has already been entered
@@ -57,11 +56,7 @@ async function checkForCaptcha(page) {
 			title: 'giveaway-grabber',
 			message: message
 		};
-		new nn.NotificationCenter().notify(notification);
-		new nn.NotifySend().notify(notification);
-		new nn.WindowsToaster().notify(notification);
-		//new nn.WindowsBalloon().notify(notification);
-		new nn.Growl().notify(notification);
+		sendSystemNotification(notification);
 		await page.waitFor(() => !document.querySelector('#image_captcha'), {
 			timeout: 0
 		});
@@ -131,6 +126,34 @@ async function navigateToGiveaway(page, giveawayNumber) {
 }
 
 /**
+ * Checks for the result of the giveaway entry and log appropriately
+ * @param {Puppeteer.Page} page
+ * @returns {Promise<void>}
+ */
+async function handleGiveawayResult(page) {
+	try {
+		const resultTextEl = await page.waitForSelector(
+			'.qa-giveaway-result-text'
+		);
+		const resultText = await page.evaluate(
+			resultTextEl => resultTextEl.textContent,
+			resultTextEl
+		);
+		console.log(resultText);
+		if (resultText.includes('won')) {
+			const notification = {
+				title: 'giveaway-grabber',
+				message: resultText
+			};
+			sendSystemNotification(notification);
+			console.log('Winning Entry URL: ' + page.url());
+		}
+	} catch (error) {
+		console.log('could not get result, oh well. Moving on!');
+	}
+}
+
+/**
  * Attempts to enter a no entry requirement type giveaway
  * @param {Puppeteer.Page} page
  * @returns {Promise<void>}
@@ -147,18 +170,7 @@ async function enterNoEntryRequirementGiveaway(page) {
 		console.log('could not find box?');
 	}
 
-	try {
-		const resultTextEl = await page.waitForSelector(
-			'.qa-giveaway-result-text'
-		);
-		const resultText = await page.evaluate(
-			resultTextEl => resultTextEl.textContent,
-			resultTextEl
-		);
-		console.log(resultText);
-	} catch (error) {
-		console.log('could not get result, oh well. Moving on!');
-	}
+	await handleGiveawayResult(page);
 }
 
 /**
@@ -193,18 +205,7 @@ async function enterVideoGiveaway(page) {
 		return;
 	}
 
-	try {
-		const resultTextEl = await page.waitForSelector(
-			'.qa-giveaway-result-text'
-		);
-		const resultText = await page.evaluate(
-			resultTextEl => resultTextEl.textContent,
-			resultTextEl
-		);
-		console.log(resultText);
-	} catch (error) {
-		console.log('could not get result, oh well. Moving on!');
-	}
+	await handleGiveawayResult(page);
 }
 
 /**
