@@ -98,6 +98,50 @@ async function checkForPassword(page, pageNumber) {
 }
 
 /**
+ * Checks if given giveaway entry is blacklisted
+ * @param page
+ * @param giveawayNumber
+ * @returns {Promise<boolean>}
+ */
+async function isBlackListed(page, giveawayNumber) {
+	try {
+		if (
+			!process.env.BLACKLIST ||
+			process.env.BLACKLIST === ''
+		) {
+			return false;
+		}
+
+		const giveawayTitleEl = await page.waitForSelector(
+			`ul.listing-info-container > li.a-section.a-spacing-base.listing-item:nth-of-type(${giveawayNumber}) .prize-title`,
+			{ timeout: 500 }
+		);
+		const giveawayTitleText = await page.evaluate(
+			giveawayTitleEl => giveawayTitleEl.textContent,
+			giveawayTitleEl
+		);
+
+		let blackListed = false;
+		const blacklist = String(process.env.BLACKLIST)
+			.toLowerCase()
+			.split(',');
+		blacklist.forEach((str) => {
+			const blacklistStr = str.trim();
+			if (blacklistStr == '') {
+				return;
+			}
+			if (giveawayTitleText.toLowerCase().includes(blacklistStr)) {
+				blackListed = true;
+			}
+		});
+		return blackListed;
+	} catch (error) {
+		return false;
+	}
+	return false;
+}
+
+/**
  * Check if giveaway has ended
  * @param {Puppeteer.Page} page
  * @returns {Promise<boolean>}
@@ -227,6 +271,12 @@ async function enterGiveaways(page, pageNumber) {
 			);
 		} catch (error) {
 			console.log('giveaway ' + i + ' did not exist?');
+			return;
+		}
+
+		const blackListed = await isBlackListed(page, i);
+		if (blackListed) {
+			console.log('giveaway ' + i + ' is blacklisted.');
 			return;
 		}
 

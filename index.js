@@ -17,6 +17,9 @@ const signIn = require('./src/signIn');
 	//add to process.env to be used elsewhere if needed
 	process.env.AMAZON_USERNAME = username;
 	process.env.AMAZON_PASSWORD = password;
+	if (args.blacklist) {
+		process.env.BLACKLIST = args.blacklist;
+	}
 
 	const browser = await puppeteer.launch({ headless: false });
 	const page = await browser.newPage();
