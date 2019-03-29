@@ -70,16 +70,18 @@ Every so often Amazon will present a CAPTCHA. The script will pause at this
 point and wait for you to enter it. The console will warn you with an `ENTER CAPTCHA!` message,
 and you **should** get a system notification (only tested it on Windows 10).
 
-### BlackList
+### Blacklist
 
-If there are giveaways you always want to skip, you can add a comma seperated list of keywords 
+If there are giveaways you always want to skip, you can add a comma separated list of keywords 
 to a blacklist.
 
 ```bash
 $ gg --username=fake@example.com --password=123456 --blacklist="kindle,perfume,floss"
 ```
 
-or if cloned, add them to your .env file like `BLACKLIST="kindle,perfume,floss"`
+or if cloned, add them to your `.env` file like `BLACKLIST="kindle,perfume,floss"`
+
+The console will let you know when it skips giveaways that you marked as blacklisted.
 
 ### Winning
 

@@ -105,10 +105,7 @@ async function checkForPassword(page, pageNumber) {
  */
 async function isBlackListed(page, giveawayNumber) {
 	try {
-		if (
-			!process.env.BLACKLIST ||
-			process.env.BLACKLIST === ''
-		) {
+		if (!process.env.BLACKLIST || process.env.BLACKLIST === '') {
 			return false;
 		}
 
@@ -125,9 +122,9 @@ async function isBlackListed(page, giveawayNumber) {
 		const blacklist = String(process.env.BLACKLIST)
 			.toLowerCase()
 			.split(',');
-		blacklist.forEach((str) => {
+		blacklist.forEach(str => {
 			const blacklistStr = str.trim();
-			if (blacklistStr == '') {
+			if (blacklistStr === '') {
 				return;
 			}
 			if (giveawayTitleText.toLowerCase().includes(blacklistStr)) {
