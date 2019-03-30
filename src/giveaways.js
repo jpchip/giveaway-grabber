@@ -98,15 +98,16 @@ async function checkForPassword(page, pageNumber) {
 }
 
 /**
- * Checks if given giveaway entry is blacklisted
+ * Checks if given giveaway entry is blacklisted, returns
+ * keyword from blacklist on match.
  * @param page
  * @param giveawayNumber
- * @returns {Promise<boolean>}
+ * @returns {Promise<string|null>}
  */
 async function isBlackListed(page, giveawayNumber) {
 	try {
 		if (!process.env.BLACKLIST || process.env.BLACKLIST === '') {
-			return false;
+			return null;
 		}
 
 		const giveawayTitleEl = await page.waitForSelector(
@@ -118,24 +119,24 @@ async function isBlackListed(page, giveawayNumber) {
 			giveawayTitleEl
 		);
 
-		let blackListed = false;
+		let blackListed = null;
 		const blacklist = String(process.env.BLACKLIST)
 			.toLowerCase()
 			.split(',');
 		blacklist.forEach(str => {
 			const blacklistStr = str.trim();
-			if (blacklistStr === '') {
+			if (blacklistStr === '' || blackListed !== null) {
 				return;
 			}
 			if (giveawayTitleText.toLowerCase().includes(blacklistStr)) {
-				blackListed = true;
+				blackListed = blacklistStr;
 			}
 		});
 		return blackListed;
 	} catch (error) {
-		return false;
+		return null;
 	}
-	return false;
+	return null;
 }
 
 /**
@@ -273,7 +274,7 @@ async function enterGiveaways(page, pageNumber) {
 
 		const blackListed = await isBlackListed(page, i);
 		if (blackListed) {
-			console.log('giveaway ' + i + ' is blacklisted.');
+			console.log('giveaway ' + i + ' is blacklisted [' + blackListed + '].');
 			return;
 		}
 
