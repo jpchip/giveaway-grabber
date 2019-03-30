@@ -128,7 +128,7 @@ async function isBlackListed(page, giveawayNumber) {
 			if (blacklistStr === '' || blackListed !== null) {
 				return;
 			}
-			if (giveawayTitleText.toLowerCase().includes(blacklistStr)) {
+			if (giveawayTitleText.toLowerCase().includes(blacklistStr) && new RegExp("\\b" + blacklistStr + "\\b").test(giveawayTitleText.toLowerCase())) {
 				blackListed = blacklistStr;
 			}
 		});
