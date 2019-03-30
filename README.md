@@ -72,16 +72,18 @@ and you **should** get a system notification (only tested it on Windows 10).
 
 ### Blacklist
 
-If there are giveaways you always want to skip, you can add a comma separated list of keywords 
+If there are types of giveaways you always want to skip, you can add a comma separated list of keywords 
 to a blacklist.
 
 ```bash
-$ gg --username=fake@example.com --password=123456 --blacklist="kindle,perfume,floss"
+$ gg --username=fake@example.com --password=123456 --blacklist="perfume,kindle edition,floss"
 ```
 
-or if cloned, add them to your `.env` file like `BLACKLIST="kindle,perfume,floss"`
+or if cloned, add them to your `.env` file like `BLACKLIST="perfume,kindle edition,floss"`.
 
-The console will let you know when it skips giveaways that you marked as blacklisted.
+Keywords are case insensitive. Note that they will match anything, so "cat" would match "cat" AND "vacation", etc.
+
+The console will let you know when it skips giveaways that you marked as blacklisted like `giveaway 5 is blacklisted [kindle edition].`
 
 ### Winning
 
