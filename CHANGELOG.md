@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.6.1 - 2019-03-29
+### Fixed
+- Include blacklisted keyword in console (#22)[https://github.com/jpchip/giveaway-grabber/issues/22]
+- Clarify blacklisting in readme
+
 ## 2.6.0 - 2019-03-29
 ### Added
 - added ability to blacklist by keywords (#22)[https://github.com/jpchip/giveaway-grabber/issues/22]

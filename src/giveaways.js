@@ -274,7 +274,9 @@ async function enterGiveaways(page, pageNumber) {
 
 		const blackListed = await isBlackListed(page, i);
 		if (blackListed) {
-			console.log('giveaway ' + i + ' is blacklisted [' + blackListed + '].');
+			console.log(
+				'giveaway ' + i + ' is blacklisted [' + blackListed + '].'
+			);
 			return;
 		}
 
