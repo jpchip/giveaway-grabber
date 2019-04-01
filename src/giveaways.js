@@ -1,5 +1,6 @@
 /* global document */
 const { asyncForEach, sendSystemNotification } = require('./utils');
+const sgMail = require('@sendgrid/mail');
 
 /**
  * Checks if giveaway has already been entered
@@ -188,7 +189,23 @@ async function handleGiveawayResult(page) {
 				message: resultText
 			};
 			sendSystemNotification(notification);
-			console.log('Winning Entry URL: ' + page.url());
+
+			const winningEntryUrl = 'Winning Entry URL: ' + page.url();
+			console.log(winningEntryUrl);
+			if (process.env.SENDGRID_API_KEY) {
+				sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+				const msg = {
+					to: process.env.AMAZON_USERNAME,
+					from: process.env.AMAZON_USERNAME,
+					subject: 'giveaway-grabber: You won!',
+					text: winningEntryUrl
+				};
+				if (process.env.SENDGRID_CC) {
+					msg.cc = process.env.SENDGRID_CC;
+				}
+				console.log('sending email');
+				await sgMail.send(msg);
+			}
 		}
 	} catch (error) {
 		console.log('could not get result, oh well. Moving on!');
