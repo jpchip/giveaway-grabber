@@ -1,5 +1,5 @@
 /* global document */
-const { asyncForEach, sendSystemNotification } = require('./utils');
+const { asyncForEach, sendSystemNotification, checkStringForWords } = require('./utils');
 
 /**
  * Checks if giveaway has already been entered
@@ -119,20 +119,7 @@ async function isBlackListed(page, giveawayNumber) {
 			giveawayTitleEl
 		);
 
-		let blackListed = null;
-		const blacklist = String(process.env.BLACKLIST)
-			.toLowerCase()
-			.split(',');
-		blacklist.forEach(str => {
-			const blacklistStr = str.trim();
-			if (blacklistStr === '' || blackListed !== null) {
-				return;
-			}
-			if (giveawayTitleText.toLowerCase().includes(blacklistStr) && new RegExp("\\b" + blacklistStr + "\\b").test(giveawayTitleText.toLowerCase())) {
-				blackListed = blacklistStr;
-			}
-		});
-		return blackListed;
+		return checkStringForWords(String(process.env.BLACKLIST), giveawayTitleText);
 	} catch (error) {
 		return null;
 	}
