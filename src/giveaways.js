@@ -1,5 +1,9 @@
 /* global document */
-const { asyncForEach, sendSystemNotification, checkStringForWords } = require('./utils');
+const {
+	asyncForEach,
+	sendSystemNotification,
+	checkStringForWords
+} = require('./utils');
 
 /**
  * Checks if giveaway has already been entered
@@ -119,7 +123,10 @@ async function isBlackListed(page, giveawayNumber) {
 			giveawayTitleEl
 		);
 
-		return checkStringForWords(String(process.env.BLACKLIST), giveawayTitleText);
+		return checkStringForWords(
+			String(process.env.BLACKLIST),
+			giveawayTitleText
+		);
 	} catch (error) {
 		return null;
 	}

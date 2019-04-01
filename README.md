@@ -81,7 +81,7 @@ $ gg --username=fake@example.com --password=123456 --blacklist="perfume,kindle e
 
 or if cloned, add them to your `.env` file like `BLACKLIST="perfume,kindle edition,floss"`.
 
-Keywords are case insensitive. Note that they will match anything, so "cat" would match "cat" AND "vacation", etc.
+Keywords are case insensitive.
 
 The console will let you know when it skips giveaways that you marked as blacklisted like `giveaway 5 is blacklisted [kindle edition].`
 

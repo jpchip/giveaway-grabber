@@ -50,7 +50,10 @@ function checkStringForWords(wordList, str) {
 		if (wordTrimmed === '' || match !== null) {
 			return;
 		}
-		if (str.toLowerCase().includes(wordTrimmed) && new RegExp("\\b" + wordTrimmed + "\\b").test(str.toLowerCase())) {
+		if (
+			str.toLowerCase().includes(wordTrimmed) &&
+			new RegExp('\\b' + wordTrimmed + '\\b').test(str.toLowerCase())
+		) {
 			match = wordTrimmed;
 		}
 	});
