@@ -1,5 +1,9 @@
 /* global document */
-const { asyncForEach, sendSystemNotification } = require('./utils');
+const {
+	asyncForEach,
+	sendSystemNotification,
+	checkStringForWords
+} = require('./utils');
 const sgMail = require('@sendgrid/mail');
 
 /**
@@ -120,20 +124,10 @@ async function isBlackListed(page, giveawayNumber) {
 			giveawayTitleEl
 		);
 
-		let blackListed = null;
-		const blacklist = String(process.env.BLACKLIST)
-			.toLowerCase()
-			.split(',');
-		blacklist.forEach(str => {
-			const blacklistStr = str.trim();
-			if (blacklistStr === '' || blackListed !== null) {
-				return;
-			}
-			if (giveawayTitleText.toLowerCase().includes(blacklistStr)) {
-				blackListed = blacklistStr;
-			}
-		});
-		return blackListed;
+		return checkStringForWords(
+			String(process.env.BLACKLIST),
+			giveawayTitleText
+		);
 	} catch (error) {
 		return null;
 	}

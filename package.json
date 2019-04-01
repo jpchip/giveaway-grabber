@@ -5,11 +5,15 @@
   "preferGlobal": true,
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "prestart": "npm install --production",
     "start": "node index.js",
     "lint": "eslint --fix .",
+    "test:watch": "jest --watch",
     "prepublish": "npm run lint"
+  },
+  "engines": {
+    "node": ">=10.0.0"
   },
   "bin": {
     "gg": "index.js"
@@ -43,8 +47,9 @@
   },
   "devDependencies": {
     "eslint": "~5.15.2",
-    "eslint-config-prettier": "^4.1.0",
+    "eslint-config-prettier": "~4.1.0",
     "eslint-plugin-prettier": "~3.0.1",
+    "jest": "~24.5.0",
     "prettier": "~1.16.4"
   }
 }
