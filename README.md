@@ -90,7 +90,17 @@ The console will let you know when it skips giveaways that you marked as blackli
 If you are lucky enough to win, you should get a system notification and the url to
 the page will be logged like `Winning Entry URL: https://amazon.com/ga/p/335..`.
 
-Good luck!
+#### Emails
+
+If you want to also receive an email notification, sign up for a free [sendgrid](https://sendgrid.com/) account and 
+add the API key to the .env file like `SENDGRID_API_KEY="YOUR_API_KEY_HERE"` or cli command:
+
+```bash
+$ gg --username=fake@example.com --password=123456 --SENDGRID_API_KEY="YOUR_KEY_HERE"
+```
+
+
+### Good luck!
 
 ## Questions
 

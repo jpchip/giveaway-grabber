@@ -20,6 +20,12 @@ const signIn = require('./src/signIn');
 	if (args.blacklist) {
 		process.env.BLACKLIST = args.blacklist;
 	}
+	if (args.SENDGRID_API_KEY) {
+		process.env.SENDGRID_API_KEY = args.SENDGRID_API_KEY;
+	}
+	if (args.SENDGRID_CC) {
+		process.env.SENDGRID_CC = args.SENDGRID_CC;
+	}
 
 	const browser = await puppeteer.launch({ headless: false });
 	const page = await browser.newPage();
