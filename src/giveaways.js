@@ -299,7 +299,13 @@ async function enterGiveaways(page, pageNumber) {
 		);
 
 		if (noEntryRequired.length > 0 || videoRequired.length > 0) {
-			await navigateToGiveaway(page, i);
+			try {
+				await navigateToGiveaway(page, i);
+			} catch (error) {
+				console.log('could not navigate to giveaway ' + i + ', oh well. Moving on!');
+				return;
+			}
+
 
 			//check if ended
 			let ended = await hasGiveawayEnded(page);
