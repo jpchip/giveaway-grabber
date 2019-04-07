@@ -270,6 +270,7 @@ async function enterVideoGiveaway(page) {
 async function enterGiveaways(page, pageNumber) {
 	//loop through each giveaway item
 	console.log('Page ' + pageNumber + ' Start:');
+	let giveawayExists = true;
 	const giveawayKeys = new Array(24);
 	await asyncForEach(giveawayKeys, async (val, index) => {
 		let i = index + 1;
@@ -280,6 +281,15 @@ async function enterGiveaways(page, pageNumber) {
 			);
 		} catch (error) {
 			console.log('giveaway ' + i + ' did not exist?');
+			giveawayExists = false;
+		}
+
+		if (!giveawayExists) {
+			// it's weird that it couldn't find a giveaway, let's make sure we
+			// aren't on some other page...
+			await checkForSwitchAccount(page);
+			await checkForPassword(page);
+			await checkForCaptcha(page);
 			return;
 		}
 
