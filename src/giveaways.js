@@ -166,7 +166,7 @@ async function navigateToGiveaway(page, giveawayNumber) {
  * Checks for the result of the giveaway entry and log appropriately.
  * Returns true if result found, false if not.
  * @param {Puppeteer.Page} page
- * @returns {Promise<Boolean>}
+ * @returns {Promise<boolean>}
  */
 async function handleGiveawayResult(page) {
 	try {
