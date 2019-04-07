@@ -344,6 +344,7 @@ async function enterGiveaways(page, pageNumber) {
 
 			//go back
 			await page.goBack();
+			await checkForSwitchAccount(page);
 			await checkForPassword(page, pageNumber);
 		} else {
 			console.log('giveaway ' + i + ' cannot be entered.');
