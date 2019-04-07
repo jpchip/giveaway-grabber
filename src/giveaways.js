@@ -163,9 +163,10 @@ async function navigateToGiveaway(page, giveawayNumber) {
 }
 
 /**
- * Checks for the result of the giveaway entry and log appropriately
+ * Checks for the result of the giveaway entry and log appropriately.
+ * Returns true if result found, false if not.
  * @param {Puppeteer.Page} page
- * @returns {Promise<void>}
+ * @returns {Promise<Boolean>}
  */
 async function handleGiveawayResult(page) {
 	try {
@@ -201,29 +202,41 @@ async function handleGiveawayResult(page) {
 				await sgMail.send(msg);
 			}
 		}
+		return true;
 	} catch (error) {
 		console.log('could not get result, oh well. Moving on!');
+		return false;
 	}
 }
 
 /**
- * Attempts to enter a no entry requirement type giveaway
+ * Attempts to enter a no entry requirement type giveaway.
+ * Will try again if it fails once.
  * @param {Puppeteer.Page} page
+ * @param {boolean} [repeatAttempt]
  * @returns {Promise<void>}
  */
-async function enterNoEntryRequirementGiveaway(page) {
+async function enterNoEntryRequirementGiveaway(page, repeatAttempt) {
 	console.log('waiting for box...');
 	await checkForSwitchAccount(page);
 	await checkForPassword(page);
 	await checkForCaptcha(page);
 	try {
+		await page.waitForSelector('.tapToSeeText', { visible: true });
+		await page.waitFor(
+			() => document.querySelector('.tapToSeeText').style.opacity === '1'
+		);
 		await page.waitForSelector('#box_click_target');
 		await page.click('#box_click_target', { delay: 2000 });
 	} catch (error) {
 		console.log('could not find box?');
 	}
 
-	await handleGiveawayResult(page);
+	const resultFound = await handleGiveawayResult(page);
+	if (!resultFound && !repeatAttempt) {
+		console.log('lets try that again.');
+		await enterNoEntryRequirementGiveaway(page, true);
+	}
 }
 
 /**
@@ -312,10 +325,9 @@ async function enterGiveaways(page, pageNumber) {
 			try {
 				await navigateToGiveaway(page, i);
 			} catch (error) {
-				console.log('could not navigate to giveaway ' + i + ', oh well. Moving on!');
+				console.log('could not navigate to giveaway ' + i + '. Next!');
 				return;
 			}
-
 
 			//check if ended
 			let ended = await hasGiveawayEnded(page);
