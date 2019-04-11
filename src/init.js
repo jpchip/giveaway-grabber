@@ -12,7 +12,7 @@ exports.handler = function (argv) {
 			.prompt([
 				{
 					name: 'username',
-					message: 'Amazon User Email Address:'
+					message: 'Amazon User Email Address:',
 				},
 				{
 					name: 'password',
@@ -34,11 +34,11 @@ exports.handler = function (argv) {
 					name: 'blacklist',
 					message: 'Black List (comma separated list)',
 					type: 'input',
-					default: 'kindle edition,floss'
+					default: ''
 				},
 			])
 			.then(answers => {
-				console.log(answers);
+				answers.sendgrid_cc = '';
 				fs.writeFile("./.ggrc.json", JSON.stringify(answers, null, 2), function(err) {
 					if(err) {
 						return console.log(err);
