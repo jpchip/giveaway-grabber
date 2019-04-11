@@ -1,8 +1,39 @@
 #! /usr/bin/env node
 
-require('dotenv').config();
 const puppeteer = require('puppeteer');
-const args = require('yargs').argv;
+const findUp = require('find-up');
+const fs = require('fs');
+
+const configPath = findUp.sync(['.ggrc.json']);
+const config = configPath ? JSON.parse(fs.readFileSync(configPath)) : undefined;
+
+
+const args = require('yargs')
+	.scriptName("gg")
+	.command(require('./src/init'))
+	.describe('page', 'page to start script on')
+	.number('page')
+	.describe('config', 'optional path to JSON config file')
+	.string('config')
+	.config(config)
+	.help()
+	.argv;
+
+
+if(args._[0] === 'init') {
+	return;
+}
+console.log(args);
+
+const username = process.env.AMAZON_USERNAME || args.username;
+const password = process.env.AMAZON_PASSWORD || args.password;
+if (!username || !password) {
+	console.error('Missing required username and/or password!');
+	return;
+}
+
+process.exit(0);
+
 const { enterGiveaways } = require('./src/giveaways');
 const signIn = require('./src/signIn');
 
