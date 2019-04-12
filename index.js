@@ -12,24 +12,25 @@ const config = configPath ? JSON.parse(fs.readFileSync(configPath)) : undefined;
 
 //set up CLI
 const args = require('yargs')
-	.scriptName("gg")
+	.scriptName('gg')
 	.command(require('./src/init'))
 	.describe('page', 'page to start script on')
 	.number('page')
 	.describe('config', 'path to JSON config file')
 	.string('config')
 	.config(config)
-	.help()
-	.argv;
+	.help().argv;
 
-if(args._[0] === 'init') {
+if (args._[0] === 'init') {
 	return;
 }
 
 const username = args.username;
 const password = args.password;
 if (!username || !password) {
-	console.error('Missing required username and/or password! Did you run `gg init`?');
+	console.error(
+		'Missing required username and/or password! Did you run `gg init`?'
+	);
 	return;
 }
 
@@ -48,7 +49,6 @@ if (args.sendgrid_cc && args.sendgrid_cc !== '') {
 
 //start index code
 (async () => {
-
 	const browser = await puppeteer.launch({ headless: false });
 	const page = await browser.newPage();
 
@@ -58,13 +58,7 @@ if (args.sendgrid_cc && args.sendgrid_cc !== '') {
 	}
 
 	//sign in
-	await signIn(
-		page,
-		username,
-		password,
-		pageNumber,
-		args['2FA']
-	);
+	await signIn(page, username, password, pageNumber, args['2FA']);
 
 	//enter giveaways
 	await enterGiveaways(page, args.page || 1);

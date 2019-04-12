@@ -1,18 +1,18 @@
 const inquirer = require('inquirer');
 const fs = require('fs');
 
-exports.command = 'init'
+exports.command = 'init';
 
-exports.describe = 'Setup wizard for creating config file'
+exports.describe = 'Setup wizard for creating config file';
 
-exports.handler = function (argv) {
+exports.handler = function(argv) {
 	console.log('handler');
 	(async function() {
 		inquirer
 			.prompt([
 				{
 					name: 'username',
-					message: 'Amazon User Email Address:',
+					message: 'Amazon User Email Address:'
 				},
 				{
 					name: 'password',
@@ -35,17 +35,20 @@ exports.handler = function (argv) {
 					message: 'Black List (comma separated list)',
 					type: 'input',
 					default: ''
-				},
+				}
 			])
 			.then(answers => {
 				answers.sendgrid_cc = '';
-				fs.writeFile("./.ggrc.json", JSON.stringify(answers, null, 2), function(err) {
-					if(err) {
-						return console.log(err);
+				fs.writeFile(
+					'./.ggrc.json',
+					JSON.stringify(answers, null, 2),
+					function(err) {
+						if (err) {
+							return console.log(err);
+						}
+						console.log('Config file created.');
 					}
-					console.log("Config file created.");
-				});
+				);
 			});
-	})().then()
-
-}
+	})().then();
+};

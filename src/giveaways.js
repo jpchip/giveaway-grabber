@@ -187,7 +187,10 @@ async function handleGiveawayResult(page) {
 
 			const winningEntryUrl = 'Winning Entry URL: ' + page.url();
 			console.log(winningEntryUrl);
-			if (process.env.SENDGRID_API_KEY && process.env.SENDGRID_API_KEY !== '') {
+			if (
+				process.env.SENDGRID_API_KEY &&
+				process.env.SENDGRID_API_KEY !== ''
+			) {
 				sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 				const msg = {
 					to: process.env.AMAZON_USERNAME,

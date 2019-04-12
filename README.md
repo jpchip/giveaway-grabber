@@ -27,22 +27,28 @@ You should then set up a configuration file:
 $ gg init
 ```
 
-After that, you can run it like:
-
-```bash
-$ gg
-```
-
+Follow the step by step instructions, which will create a `.ggrc.json` file in your current directory.
 
 ## Usage
 
-To see all possible commands and options:
+Run the script with:
 
 ```bash
-$ gg help
+$ gg 
 ```
 
 Note that the script will crash if the Chrome window is minimized! Check the console to monitor progress.
+
+
+Other available commands:
+
+| Command  | Description |
+| ------------- | ------------- |
+| `gg help` | 	Lists available commands and their descriptions.  |
+| `gg --version` | Outputs gg CLI version.  |
+| `gg --page` | Starts script on given page number (eg. `gg --page=34`) |
+| `gg --config` | Specify path to JSON config file (eg. `gg --config=/var/myconfig.json`) |
+
 
 If it does happen to die, re-start it on any page like:
 
