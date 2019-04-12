@@ -91,7 +91,7 @@ async function checkForPassword(page, pageNumber) {
 	await page.type('#ap_password', process.env.AMAZON_PASSWORD);
 
 	//check if there is also a captcha on the page
-	await this.checkForCaptcha(page);
+	await checkForCaptcha(page);
 
 	try {
 		await page.waitForSelector('#signInSubmit', { timeout: 500 });
