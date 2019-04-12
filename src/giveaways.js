@@ -275,6 +275,17 @@ async function enterVideoGiveaway(page) {
 }
 
 /**
+ * Sleep for the specified milliseconds.
+ * Use an await when calling to stop thread processing.
+ * 
+ * @param {int} millis The millisecons to wait.
+ * @returns {Promise} An unusable promise that has no reason to do anything but wait.
+ */
+function sleep(millis) {
+  return new Promise(resolve => setTimeout(resolve, millis));
+}
+
+/**
  * Loops through giveaways on given page, tries to enter them
  * @param {Puppeteer.Page} page
  * @param {number} pageNumber current giveaways page (eg. www.amazon.com/ga/giveaways?pageId=5)
@@ -361,6 +372,7 @@ async function enterGiveaways(page, pageNumber) {
 		} else {
 			console.log('giveaway ' + i + ' cannot be entered.');
 		}
+		await sleep (Math.floor(Math.random() * 5000) + 1000 );
 	});
 
 	//go to next page, if we can
