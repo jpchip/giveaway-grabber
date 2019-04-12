@@ -36,7 +36,7 @@ async function checkForSwitchAccount(page) {
 		await page.waitForSelector('.cvf-widget-form-account-switcher', {
 			timeout: 500
 		});
-		console.log('Whoa, got to re-signin!');
+		console.log('On switch account page');
 		const switchAccountPromise = page.waitForNavigation();
 		await page.click('.cvf-account-switcher-spacing-top-micro');
 		await switchAccountPromise;
@@ -89,9 +89,6 @@ async function checkForPassword(page, pageNumber) {
 
 	await page.click('#ap_password');
 	await page.type('#ap_password', process.env.AMAZON_PASSWORD);
-
-	//check if there is also a captcha on the page
-	await checkForCaptcha(page);
 
 	try {
 		await page.waitForSelector('#signInSubmit', { timeout: 500 });
@@ -225,10 +222,10 @@ async function handleGiveawayResult(page) {
  * @returns {Promise<void>}
  */
 async function enterNoEntryRequirementGiveaway(page, repeatAttempt) {
-	console.log('waiting for box...');
 	await checkForSwitchAccount(page);
 	await checkForPassword(page);
 	await checkForCaptcha(page);
+	console.log('waiting for box...');
 	try {
 		await page.waitForSelector('.tapToSeeText', { visible: true });
 		await page.waitFor(
@@ -309,7 +306,7 @@ async function enterGiveaways(page, pageNumber) {
 			// it's weird that it couldn't find a giveaway, let's make sure we
 			// aren't on some other page...
 			await checkForSwitchAccount(page);
-			await checkForPassword(page);
+			await checkForPassword(page, pageNumber);
 			await checkForCaptcha(page);
 			return;
 		}
