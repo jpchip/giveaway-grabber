@@ -333,6 +333,7 @@ async function enterGiveaways(page, pageNumber) {
 		);
 
 		if (noEntryRequired.length > 0 || videoRequired.length > 0) {
+			await sleep (Math.floor(Math.random() * 3000) + 1000 );
 			try {
 				await navigateToGiveaway(page, i);
 			} catch (error) {
@@ -372,7 +373,6 @@ async function enterGiveaways(page, pageNumber) {
 		} else {
 			console.log('giveaway ' + i + ' cannot be entered.');
 		}
-		await sleep (Math.floor(Math.random() * 5000) + 1000 );
 	});
 
 	//go to next page, if we can
