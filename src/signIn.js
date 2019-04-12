@@ -31,6 +31,9 @@ module.exports = async function(
 	await page.click('#ap_password');
 	await page.type('#ap_password', password);
 
+	await page.waitForSelector('[name=rememberMe]');
+	await page.click('[name=rememberMe]');
+
 	const signInPromise = page.waitForNavigation();
 	await page.waitForSelector('#signInSubmit');
 	await page.click('#signInSubmit');
