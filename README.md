@@ -46,15 +46,8 @@ Other available commands:
 | ------------- | ------------- |
 | `gg help` | 	Lists available commands and their descriptions.  |
 | `gg --version` | Outputs gg CLI version.  |
-| `gg --page` | Starts script on given page number (eg. `gg --page=34`) |
-| `gg --config` | Specify path to JSON config file (eg. `gg --config=/var/myconfig.json`) |
-
-
-If it does happen to die, re-start it on any page like:
-
-```bash
-$ gg --page=34
-```
+| `gg --page=[number]` | Starts script on given page number (eg. `gg --page=34`) |
+| `gg --config==[string]` | Specify path to JSON config file (eg. `gg --config=/var/myconfig.json`) |
 
 ## Configuration
 
@@ -77,16 +70,16 @@ After running `gg init`, you'll have a `.ggrc.json` file in your directory. It w
 | 2FA | Set true if you have two factor authentication enabled |
 | sendgrid_api_key | Your [sendgrid](https://sendgrid.com/) API key, if you want to receive an email when you win. Optional |
 | sendgrid_cc | An email address to be cc'ed if you win |
-| blacklist | Comma Delimited list of keywords to avoid when entering giveaways. Optional |
+| blacklist | Comma delimited list of keywords to avoid when entering giveaways. Optional |
 
-### Two factor authentication
+### Two factor Authentication (2FA)
 
 If you have two factor authentication enabled, set the `2FA` option. The script will wait for you to enter your code. 
 
 ### Blacklist
 
 If there are types of giveaways you always want to skip, you can add a comma separated list of keywords 
-to a blacklist.
+to the blacklist.
 
 Keywords are case insensitive.
 
@@ -108,7 +101,7 @@ the page will be logged like `Winning Entry URL: https://amazon.com/ga/p/335..`.
 #### Emails
 
 If you want to also receive an email notification, sign up for a free [sendgrid](https://sendgrid.com/) account and 
-add the API key to the `.ggrc.json` file.
+add the API key to your `.ggrc.json` file.
 
 ### Good luck!
 

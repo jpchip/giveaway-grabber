@@ -27,12 +27,12 @@ exports.handler = function(argv) {
 				},
 				{
 					name: 'sendgrid_api_key',
-					message: 'Sendgrid API Key (for emails on win):',
+					message: 'Sendgrid API Key (optional, for emails on win):',
 					default: ''
 				},
 				{
 					name: 'blacklist',
-					message: 'Black List (comma separated list)',
+					message: 'Black List (optional, comma separated list)',
 					type: 'input',
 					default: ''
 				}

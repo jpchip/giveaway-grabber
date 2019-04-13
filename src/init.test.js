@@ -13,7 +13,7 @@ describe('init command', () => {
 		});
 
 		// Verify the output is correct
-		expect(output).toBe(
+		expect(output).toEqual(
 			expect.stringContaining('Setup wizard for creating config file')
 		);
 	});
