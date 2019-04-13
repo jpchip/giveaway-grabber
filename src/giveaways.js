@@ -36,7 +36,7 @@ async function checkForSwitchAccount(page) {
 		await page.waitForSelector('.cvf-widget-form-account-switcher', {
 			timeout: 500
 		});
-		console.log('Whoa, got to re-signin!');
+		console.log('On switch account page');
 		const switchAccountPromise = page.waitForNavigation();
 		await page.click('.cvf-account-switcher-spacing-top-micro');
 		await switchAccountPromise;
@@ -90,7 +90,13 @@ async function checkForPassword(page, pageNumber) {
 	await page.click('#ap_password');
 	await page.type('#ap_password', process.env.AMAZON_PASSWORD);
 
-	await page.waitForSelector('#signInSubmit');
+	try {
+		await page.waitForSelector('#signInSubmit', { timeout: 500 });
+	} catch (error) {
+		//no submit button, user must have clicked it themselves...
+		return;
+	}
+
 	const signInPromise = page.waitForNavigation();
 	await page.click('#signInSubmit');
 	await signInPromise;
@@ -131,7 +137,6 @@ async function isBlackListed(page, giveawayNumber) {
 	} catch (error) {
 		return null;
 	}
-	return null;
 }
 
 /**
@@ -220,10 +225,10 @@ async function handleGiveawayResult(page) {
  * @returns {Promise<void>}
  */
 async function enterNoEntryRequirementGiveaway(page, repeatAttempt) {
-	console.log('waiting for box...');
 	await checkForSwitchAccount(page);
 	await checkForPassword(page);
 	await checkForCaptcha(page);
+	console.log('waiting for box...');
 	try {
 		await page.waitForSelector('.tapToSeeText', { visible: true });
 		await page.waitFor(
@@ -286,10 +291,10 @@ async function enterVideoGiveaway(page) {
 async function enterGiveaways(page, pageNumber) {
 	//loop through each giveaway item
 	console.log('Page ' + pageNumber + ' Start:');
-	let giveawayExists = true;
 	const giveawayKeys = new Array(24);
 	await asyncForEach(giveawayKeys, async (val, index) => {
 		let i = index + 1;
+		let giveawayExists = true;
 		try {
 			await page.waitForSelector(
 				`.listing-info-container > .a-section:nth-of-type(${i})`,
@@ -304,7 +309,7 @@ async function enterGiveaways(page, pageNumber) {
 			// it's weird that it couldn't find a giveaway, let's make sure we
 			// aren't on some other page...
 			await checkForSwitchAccount(page);
-			await checkForPassword(page);
+			await checkForPassword(page, pageNumber);
 			await checkForCaptcha(page);
 			return;
 		}
