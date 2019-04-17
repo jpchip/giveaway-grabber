@@ -22,6 +22,17 @@ async function alreadyEntered(page) {
 	} catch (error) {
 		//nothing to do here...
 	}
+	if (!alreadyEntered) {
+		try {
+			await page.waitForSelector('.a-text-bold prize-title', {
+				timeout: 1000
+			});
+			alreadyEntered = true;
+		} catch (error) {
+			//nothing to do here...
+		}
+	}
+
 	return alreadyEntered;
 }
 
@@ -174,10 +185,30 @@ async function navigateToGiveaway(page, giveawayNumber) {
  * @returns {Promise<boolean>}
  */
 async function handleGiveawayResult(page) {
+	let resultTextEl;
 	try {
-		const resultTextEl = await page.waitForSelector(
-			'.qa-giveaway-result-text'
-		);
+		resultTextEl = await page.waitForSelector('.qa-giveaway-result-text', {
+			timeout: 5000
+		});
+	} catch (error) {
+		//could not find .qa-giveaway-result-text
+	}
+	if (!resultTextEl) {
+		try {
+			resultTextEl = await page.waitForSelector(
+				'.a-text-bold prize-title',
+				{ timeout: 5000 }
+			);
+		} catch (error) {
+			//could not find .a-text-bold prize-title
+		}
+	}
+	if (!resultTextEl) {
+		console.log('could not find result text, oh well. Moving on!');
+		return false;
+	}
+
+	try {
 		const resultText = await page.evaluate(
 			resultTextEl => resultTextEl.textContent,
 			resultTextEl
@@ -226,9 +257,24 @@ async function enterNoEntryRequirementGiveaway(page, repeatAttempt) {
 	await checkForPassword(page);
 	await checkForCaptcha(page);
 	console.log('waiting for box...');
+	let selector = null;
 	try {
-		await page.waitForSelector('#box_click_target');
-		await page.click('#box_click_target', { delay: 2000 });
+		await page.waitForSelector('.box-click-area', { timeout: 2000 });
+		selector = '.box-click-area';
+	} catch (error) {
+		//could not find box-click-area
+	}
+	if (!selector) {
+		try {
+			await page.waitForSelector('#box_click_target', { timeout: 2000 });
+			selector = '#box_click_target';
+		} catch (error) {
+			//could not find box_click_target
+		}
+	}
+
+	try {
+		await page.click(selector, { delay: 2000 });
 	} catch (error) {
 		console.log('could not find box?');
 	}
