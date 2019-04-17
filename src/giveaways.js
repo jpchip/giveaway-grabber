@@ -24,9 +24,12 @@ async function alreadyEntered(page) {
 	}
 	if (!alreadyEntered) {
 		try {
-			const resultTextEl = await page.waitForSelector('span.a-size-medium.a-color-secondary.a-text-bold.prize-title', {
-				timeout: 1000
-			});
+			const resultTextEl = await page.waitForSelector(
+				'span.a-size-medium.a-color-secondary.a-text-bold.prize-title',
+				{
+					timeout: 1000
+				}
+			);
 			const resultText = await page.evaluate(
 				resultTextEl => resultTextEl.textContent,
 				resultTextEl
@@ -331,14 +334,9 @@ async function enterVideoGiveaway(page) {
 				'#videoSubmitForm > .a-button-stack > #enter-youtube-video-button > .a-button-inner > .a-button-input'
 			);
 		} else {
-			await page.waitForSelector(
-				'.youtube-continue-button'
-			);
-			await page.click(
-				'.youtube-continue-button'
-			);
+			await page.waitForSelector('.youtube-continue-button');
+			await page.click('.youtube-continue-button');
 		}
-
 	} catch (error) {
 		console.log('no submit button found, oh well. Moving on!');
 		return;
