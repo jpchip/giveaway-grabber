@@ -24,10 +24,16 @@ async function alreadyEntered(page) {
 	}
 	if (!alreadyEntered) {
 		try {
-			await page.waitForSelector('.a-text-bold prize-title', {
+			const resultTextEl = await page.waitForSelector('span.a-size-medium.a-color-secondary.a-text-bold.prize-title', {
 				timeout: 1000
 			});
-			alreadyEntered = true;
+			const resultText = await page.evaluate(
+				resultTextEl => resultTextEl.textContent,
+				resultTextEl
+			);
+			if (!resultText.includes('chance')) {
+				alreadyEntered = true;
+			}
 		} catch (error) {
 			//nothing to do here...
 		}
@@ -188,7 +194,7 @@ async function handleGiveawayResult(page) {
 	let resultTextEl;
 	try {
 		resultTextEl = await page.waitForSelector('.qa-giveaway-result-text', {
-			timeout: 5000
+			timeout: 10000
 		});
 	} catch (error) {
 		//could not find .qa-giveaway-result-text
@@ -196,11 +202,11 @@ async function handleGiveawayResult(page) {
 	if (!resultTextEl) {
 		try {
 			resultTextEl = await page.waitForSelector(
-				'.a-text-bold prize-title',
-				{ timeout: 5000 }
+				'.a-text-bold.prize-title',
+				{ timeout: 10000 }
 			);
 		} catch (error) {
-			//could not find .a-text-bold prize-title
+			//could not find .a-text-bold.prize-title
 		}
 	}
 	if (!resultTextEl) {
@@ -296,23 +302,43 @@ async function enterVideoGiveaway(page) {
 	await checkForPassword(page);
 	await checkForCaptcha(page);
 	console.log('waiting for video (~15 secs)...');
+	let selector = null;
 	try {
 		await page.waitForSelector('#youtube-iframe', { timeout: 1000 });
+		selector = '#youtube-iframe';
 	} catch (error) {
-		console.log('could not find video, oh well. Moving on!');
-		return;
+		//could not find #youtube-iframe
+	}
+	if (!selector) {
+		try {
+			await page.waitForSelector('.youtube-video', { timeout: 1000 });
+			selector = '.youtube-video';
+		} catch (error) {
+			console.log('could not find video, oh well. Moving on!');
+			return;
+		}
 	}
 
-	await page.click('#youtube-iframe');
+	await page.click(selector);
 	await page.waitFor(15000);
 
 	try {
-		await page.waitForSelector(
-			'#videoSubmitForm > .a-button-stack > #enter-youtube-video-button > .a-button-inner > .a-button-input'
-		);
-		await page.click(
-			'#videoSubmitForm > .a-button-stack > #enter-youtube-video-button > .a-button-inner > .a-button-input'
-		);
+		if (selector === '#youtube-iframe') {
+			await page.waitForSelector(
+				'#videoSubmitForm > .a-button-stack > #enter-youtube-video-button > .a-button-inner > .a-button-input'
+			);
+			await page.click(
+				'#videoSubmitForm > .a-button-stack > #enter-youtube-video-button > .a-button-inner > .a-button-input'
+			);
+		} else {
+			await page.waitForSelector(
+				'.youtube-continue-button'
+			);
+			await page.click(
+				'.youtube-continue-button'
+			);
+		}
+
 	} catch (error) {
 		console.log('no submit button found, oh well. Moving on!');
 		return;
