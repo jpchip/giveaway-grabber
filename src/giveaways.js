@@ -227,10 +227,6 @@ async function enterNoEntryRequirementGiveaway(page, repeatAttempt) {
 	await checkForCaptcha(page);
 	console.log('waiting for box...');
 	try {
-		await page.waitForSelector('.tapToSeeText', { visible: true });
-		await page.waitFor(
-			() => document.querySelector('.tapToSeeText').style.opacity === '1'
-		);
 		await page.waitForSelector('#box_click_target');
 		await page.click('#box_click_target', { delay: 2000 });
 	} catch (error) {
