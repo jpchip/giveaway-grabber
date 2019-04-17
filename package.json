@@ -1,6 +1,6 @@
 {
   "name": "giveaway-grabber",
-  "version": "2.7.2",
+  "version": "2.7.3",
   "description": "Automates entries for Amazon Giveaways",
   "preferGlobal": true,
   "main": "index.js",
