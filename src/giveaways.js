@@ -91,10 +91,13 @@ async function checkForCaptcha(page) {
 		const tessValue = await Tesseract.recognize(url).then(function(result) {
 			return result;
 		});
-	    console.log("OCR Value:  " + tessValue.text.trim().replace(" ", ""));
+		console.log('OCR Value:  ' + tessValue.text.trim().replace(' ', ''));
 		await page.waitForSelector('#image_captcha_input');
 		await page.click('#image_captcha_input');
-		await page.type('#image_captcha_input', tessValue.text.trim().replace(" ", ""));
+		await page.type(
+			'#image_captcha_input',
+			tessValue.text.trim().replace(' ', '')
+		);
 		await page.click('#image_captcha_input');
 		await page.click('.a-button-input');
 		await page.waitFor(() => !document.querySelector('#image_captcha'), {
