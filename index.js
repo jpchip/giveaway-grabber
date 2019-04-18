@@ -1,32 +1,54 @@
 #! /usr/bin/env node
 
-require('dotenv').config();
 const puppeteer = require('puppeteer');
-const args = require('yargs').argv;
+const findUp = require('find-up');
+const fs = require('fs');
 const { enterGiveaways } = require('./src/giveaways');
 const signIn = require('./src/signIn');
 
+//look for config file
+const configPath = findUp.sync(['.ggrc.json']);
+const config = configPath ? JSON.parse(fs.readFileSync(configPath)) : undefined;
+
+//set up CLI
+const args = require('yargs')
+	.scriptName('gg')
+	.command(require('./src/init'))
+	.describe('page', 'page to start script on')
+	.number('page')
+	.describe('config', 'path to JSON config file')
+	.string('config')
+	.config(config)
+	.help().argv;
+
+if (args._[0] === 'init') {
+	return;
+}
+
+const username = args.username;
+const password = args.password;
+if (!username || !password) {
+	console.error(
+		'Missing required username and/or password! Did you run `gg init`?'
+	);
+	return;
+}
+
+//add args to process.env to be used elsewhere if needed
+process.env.AMAZON_USERNAME = username;
+process.env.AMAZON_PASSWORD = password;
+if (args.blacklist && args.blacklist !== '') {
+	process.env.BLACKLIST = args.blacklist;
+}
+if (args.sendgrid_api_key && args.sendgrid_api_key !== '') {
+	process.env.SENDGRID_API_KEY = args.sendgrid_api_key;
+}
+if (args.sendgrid_cc && args.sendgrid_cc !== '') {
+	process.env.SENDGRID_CC = args.sendgrid_cc;
+}
+
 //start index code
 (async () => {
-	const username = process.env.AMAZON_USERNAME || args.username;
-	const password = process.env.AMAZON_PASSWORD || args.password;
-	if (!username || !password) {
-		console.error('Missing required username and/or password!');
-		return;
-	}
-	//add to process.env to be used elsewhere if needed
-	process.env.AMAZON_USERNAME = username;
-	process.env.AMAZON_PASSWORD = password;
-	if (args.blacklist) {
-		process.env.BLACKLIST = args.blacklist;
-	}
-	if (args.SENDGRID_API_KEY) {
-		process.env.SENDGRID_API_KEY = args.SENDGRID_API_KEY;
-	}
-	if (args.SENDGRID_CC) {
-		process.env.SENDGRID_CC = args.SENDGRID_CC;
-	}
-
 	const browser = await puppeteer.launch({ headless: false });
 	const page = await browser.newPage();
 
@@ -36,13 +58,7 @@ const signIn = require('./src/signIn');
 	}
 
 	//sign in
-	await signIn(
-		page,
-		username,
-		password,
-		pageNumber,
-		args.hasOwnProperty('2FA')
-	);
+	await signIn(page, username, password, pageNumber, args['2FA']);
 
 	//enter giveaways
 	await enterGiveaways(page, args.page || 1);
