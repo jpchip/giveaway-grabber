@@ -5,6 +5,7 @@ const {
 	checkStringForWords
 } = require('./utils');
 const sgMail = require('@sendgrid/mail');
+var Tesseract = require('tesseract.js');
 
 /**
  * Checks if giveaway has already been entered
@@ -82,6 +83,20 @@ async function checkForCaptcha(page) {
 			message: message
 		};
 		sendSystemNotification(notification);
+		await page.waitForSelector('.a-dynamic-image', { timeout: 1000 });
+		const url = await page.$eval(
+			'img[src*="opfcaptcha-prod"]',
+			el => el.src
+		);
+		const tessValue = await Tesseract.recognize(url).then(function(result) {
+			return result;
+		});
+	    console.log("OCR Value:  " + tessValue.text.trim().replace(" ", ""));
+		await page.waitForSelector('#image_captcha_input');
+		await page.click('#image_captcha_input');
+		await page.type('#image_captcha_input', tessValue.text.trim().replace(" ", ""));
+		await page.click('#image_captcha_input');
+		await page.click('.a-button-input');
 		await page.waitFor(() => !document.querySelector('#image_captcha'), {
 			timeout: 0
 		});
