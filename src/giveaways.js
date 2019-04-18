@@ -5,6 +5,7 @@ const {
 	checkStringForWords
 } = require('./utils');
 const sgMail = require('@sendgrid/mail');
+var Tesseract = require('tesseract.js');
 
 /**
  * Checks if giveaway has already been entered
@@ -22,6 +23,26 @@ async function alreadyEntered(page) {
 	} catch (error) {
 		//nothing to do here...
 	}
+	if (!alreadyEntered) {
+		try {
+			const resultTextEl = await page.waitForSelector(
+				'span.a-size-medium.a-color-secondary.a-text-bold.prize-title',
+				{
+					timeout: 1000
+				}
+			);
+			const resultText = await page.evaluate(
+				resultTextEl => resultTextEl.textContent,
+				resultTextEl
+			);
+			if (!resultText.includes('chance')) {
+				alreadyEntered = true;
+			}
+		} catch (error) {
+			//nothing to do here...
+		}
+	}
+
 	return alreadyEntered;
 }
 
@@ -62,6 +83,23 @@ async function checkForCaptcha(page) {
 			message: message
 		};
 		sendSystemNotification(notification);
+		await page.waitForSelector('.a-dynamic-image', { timeout: 1000 });
+		const url = await page.$eval(
+			'img[src*="opfcaptcha-prod"]',
+			el => el.src
+		);
+		const tessValue = await Tesseract.recognize(url).then(function(result) {
+			return result;
+		});
+		console.log('OCR Value:  ' + tessValue.text.trim().replace(' ', ''));
+		await page.waitForSelector('#image_captcha_input');
+		await page.click('#image_captcha_input');
+		await page.type(
+			'#image_captcha_input',
+			tessValue.text.trim().replace(' ', '')
+		);
+		await page.click('#image_captcha_input');
+		await page.click('.a-button-input');
 		await page.waitFor(() => !document.querySelector('#image_captcha'), {
 			timeout: 0
 		});
@@ -174,10 +212,30 @@ async function navigateToGiveaway(page, giveawayNumber) {
  * @returns {Promise<boolean>}
  */
 async function handleGiveawayResult(page) {
+	let resultTextEl;
 	try {
-		const resultTextEl = await page.waitForSelector(
-			'.qa-giveaway-result-text'
-		);
+		resultTextEl = await page.waitForSelector('.qa-giveaway-result-text', {
+			timeout: 10000
+		});
+	} catch (error) {
+		//could not find .qa-giveaway-result-text
+	}
+	if (!resultTextEl) {
+		try {
+			resultTextEl = await page.waitForSelector(
+				'.a-text-bold.prize-title',
+				{ timeout: 10000 }
+			);
+		} catch (error) {
+			//could not find .a-text-bold.prize-title
+		}
+	}
+	if (!resultTextEl) {
+		console.log('could not find result text, oh well. Moving on!');
+		return false;
+	}
+
+	try {
 		const resultText = await page.evaluate(
 			resultTextEl => resultTextEl.textContent,
 			resultTextEl
@@ -229,13 +287,24 @@ async function enterNoEntryRequirementGiveaway(page, repeatAttempt) {
 	await checkForPassword(page);
 	await checkForCaptcha(page);
 	console.log('waiting for box...');
+	let selector = null;
 	try {
-		await page.waitForSelector('.tapToSeeText', { visible: true });
-		await page.waitFor(
-			() => document.querySelector('.tapToSeeText').style.opacity === '1'
-		);
-		await page.waitForSelector('#box_click_target');
-		await page.click('#box_click_target', { delay: 2000 });
+		await page.waitForSelector('.box-click-area', { timeout: 2000 });
+		selector = '.box-click-area';
+	} catch (error) {
+		//could not find box-click-area
+	}
+	if (!selector) {
+		try {
+			await page.waitForSelector('#box_click_target', { timeout: 2000 });
+			selector = '#box_click_target';
+		} catch (error) {
+			//could not find box_click_target
+		}
+	}
+
+	try {
+		await page.click(selector, { delay: 2000 });
 	} catch (error) {
 		console.log('could not find box?');
 	}
@@ -257,23 +326,38 @@ async function enterVideoGiveaway(page) {
 	await checkForPassword(page);
 	await checkForCaptcha(page);
 	console.log('waiting for video (~15 secs)...');
+	let selector = null;
 	try {
 		await page.waitForSelector('#youtube-iframe', { timeout: 1000 });
+		selector = '#youtube-iframe';
 	} catch (error) {
-		console.log('could not find video, oh well. Moving on!');
-		return;
+		//could not find #youtube-iframe
+	}
+	if (!selector) {
+		try {
+			await page.waitForSelector('.youtube-video', { timeout: 1000 });
+			selector = '.youtube-video';
+		} catch (error) {
+			console.log('could not find video, oh well. Moving on!');
+			return;
+		}
 	}
 
-	await page.click('#youtube-iframe');
+	await page.click(selector);
 	await page.waitFor(15000);
 
 	try {
-		await page.waitForSelector(
-			'#videoSubmitForm > .a-button-stack > #enter-youtube-video-button > .a-button-inner > .a-button-input'
-		);
-		await page.click(
-			'#videoSubmitForm > .a-button-stack > #enter-youtube-video-button > .a-button-inner > .a-button-input'
-		);
+		if (selector === '#youtube-iframe') {
+			await page.waitForSelector(
+				'#videoSubmitForm > .a-button-stack > #enter-youtube-video-button > .a-button-inner > .a-button-input'
+			);
+			await page.click(
+				'#videoSubmitForm > .a-button-stack > #enter-youtube-video-button > .a-button-inner > .a-button-input'
+			);
+		} else {
+			await page.waitForSelector('.youtube-continue-button');
+			await page.click('.youtube-continue-button');
+		}
 	} catch (error) {
 		console.log('no submit button found, oh well. Moving on!');
 		return;

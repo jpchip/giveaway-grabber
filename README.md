@@ -88,8 +88,8 @@ The console will let you know when it skips giveaways that you marked as blackli
 
 ### CAPTCHAs
 
-Every so often Amazon will present a CAPTCHA. The script will pause at this 
-point and wait for you to enter it. The console will warn you with an `ENTER CAPTCHA!` message,
+Every so often Amazon will present a CAPTCHA. The script will attempt to enter it automatically, but if it fails, it will 
+pause and wait for you to enter it. The console will warn you with an `ENTER CAPTCHA!` message,
 and you **should** get a system notification (only tested it on Windows 10).
 
 
