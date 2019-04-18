@@ -4,7 +4,7 @@
 
 This script will loop through all the [Amazon giveaways](https://www.amazon.com/ga/giveaways/) and try to submit entries for them. 
 
-If there are things you really never want to win (like socks), you can add them to the blacklist
+If there are things you really never want to win (like socks), you can add keywords to the blacklist in the config file
 and the script will always skip those entries.
 
 I wanted a reason to experiment with [Puppeteer](https://github.com/GoogleChrome/puppeteer), so here goes.
@@ -18,13 +18,13 @@ Prerequisites: [Node.js](https://nodejs.org/en/) (>=10.0.0), npm version 3+.
 You can install giveaway-grabber using npm:
 
 ```bash
-$ npm install -g giveaway-grabber
+npm install -g giveaway-grabber
 ```
 
 You should then set up a configuration file:
 
 ```bash
-$ gg init
+gg init
 ```
 
 Follow the step by step instructions, which will create a `.ggrc.json` file in your current directory.
@@ -34,7 +34,7 @@ Follow the step by step instructions, which will create a `.ggrc.json` file in y
 Run the script with:
 
 ```bash
-$ gg 
+gg 
 ```
 
 Note that the script will crash if the Chrome window is minimized! Check the console to monitor progress.
@@ -44,7 +44,7 @@ Other available commands:
 
 | Command  | Description |
 | ------------- | ------------- |
-| `gg help` | 	Lists available commands and their descriptions.  |
+| `gg help` | Lists available commands and their descriptions.  |
 | `gg --version` | Outputs gg CLI version.  |
 | `gg --page=[number]` | Starts script on given page number (eg. `gg --page=34`) |
 | `gg --config==[string]` | Specify path to JSON config file (eg. `gg --config=/var/myconfig.json`) |
@@ -59,6 +59,7 @@ After running `gg init`, you'll have a `.ggrc.json` file in your directory. It w
   "password": "123456",
   "2FA": false,
   "sendgrid_api_key": "",
+  "sendgrid_cc": "",
   "blacklist": "floss,socks,ties"
 }
 ```
@@ -125,6 +126,8 @@ and lint the code with:
 ```bash
 npm run lint
 ```
+
+We love pull requests from everyone! See the [Contributing Doc](./CONTRIBUTING.md) for more info.
 
 ## Questions
 
