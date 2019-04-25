@@ -67,6 +67,37 @@ async function checkForSwitchAccount(page) {
 }
 
 /**
+ * Check to see of we have been presented a sign in button.
+ * Click it if we do.
+ * @param {Puppeteer.Page} page
+ * @returns {Promise<void>}
+ */
+async function checkForSignInButton(page) {
+	try {
+		await page.waitForSelector('a[class=a-button-text][role=button]', {
+			timeout: 500
+		});
+		console.log('On Sign In Button');
+		const signInButtonPromise = page.waitForNavigation();
+		await page.click('a[class=a-button-text][role=button]');
+		await signInButtonPromise;
+		await page.waitForSelector('.cvf-widget-form-account-switcher', {
+			timeout: 500
+		});
+		//Assume that we just advanced to the switch account page.
+		await checkForSwitchAccount(page);
+		//Go back to the switch account page after clicking though it.
+		await page.goBack();
+		//Go back to the page that had the Sign In Button
+		await page.goBack();
+		//Refresh the page to get a box or video.
+		await page.reload();
+	} catch (error) {
+		//nothing to do here
+	}
+}
+
+/**
  * Check if there's a captcha,
  * and if so, wait until user enters it.
  * @todo email user so they know it stopped?
@@ -283,6 +314,7 @@ async function handleGiveawayResult(page) {
  * @returns {Promise<void>}
  */
 async function enterNoEntryRequirementGiveaway(page, repeatAttempt) {
+	await checkForSignInButton(page);
 	await checkForSwitchAccount(page);
 	await checkForPassword(page);
 	await checkForCaptcha(page);
@@ -322,6 +354,7 @@ async function enterNoEntryRequirementGiveaway(page, repeatAttempt) {
  * @returns {Promise<void>}
  */
 async function enterVideoGiveaway(page) {
+	await checkForSignInButton(page);
 	await checkForSwitchAccount(page);
 	await checkForPassword(page);
 	await checkForCaptcha(page);
@@ -392,6 +425,7 @@ async function enterGiveaways(page, pageNumber) {
 		if (!giveawayExists) {
 			// it's weird that it couldn't find a giveaway, let's make sure we
 			// aren't on some other page...
+			await checkForSignInButton(page);
 			await checkForSwitchAccount(page);
 			await checkForPassword(page, pageNumber);
 			await checkForCaptcha(page);
@@ -448,6 +482,7 @@ async function enterGiveaways(page, pageNumber) {
 
 			//go back
 			await page.goBack();
+			await checkForSignInButton(page);
 			await checkForSwitchAccount(page);
 			await checkForPassword(page, pageNumber);
 		} else {
