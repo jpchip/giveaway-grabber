@@ -35,7 +35,6 @@ module.exports = async function(
 		console.log('No email field');
 	}
 
-
 	await page.waitForSelector('#ap_password');
 	await page.click('#ap_password');
 	await page.type('#ap_password', password);
