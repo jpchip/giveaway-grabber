@@ -1,6 +1,6 @@
 {
   "name": "giveaway-grabber",
-  "version": "2.7.1",
+  "version": "3.1.0",
   "description": "Automates entries for Amazon Giveaways",
   "preferGlobal": true,
   "main": "index.js",
@@ -9,8 +9,7 @@
     "prestart": "npm install --production",
     "start": "node index.js",
     "lint": "eslint --fix .",
-    "test:watch": "jest --watch",
-    "prepublish": "npm run lint"
+    "test:watch": "jest --watch"
   },
   "engines": {
     "node": ">=10.0.0"
@@ -31,6 +30,10 @@
     {
       "name": "birdlavv",
       "url": "https://github.com/birdlavv"
+    },
+    {
+      "name": "KryptoNova",
+      "url": "https://github.com/KryptoNova"
     }
   ],
   "license": "MIT",
@@ -40,15 +43,17 @@
   "homepage": "https://github.com/jpchip/giveaway-grabber#readme",
   "dependencies": {
     "@sendgrid/mail": "~6.3.1",
-    "dotenv": "~6.2.0",
+    "inquirer": "~6.2.2",
     "node-notifier": "~5.4.0",
     "puppeteer": "~1.13.0",
+    "tesseract.js": "~1.0.14",
     "yargs": "~13.2.2"
   },
   "devDependencies": {
     "eslint": "~5.15.2",
     "eslint-config-prettier": "~4.1.0",
     "eslint-plugin-prettier": "~3.0.1",
+    "find-up": "~3.0.0",
     "jest": "~24.5.0",
     "prettier": "~1.16.4"
   }

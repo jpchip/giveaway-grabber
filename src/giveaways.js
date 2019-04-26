@@ -5,6 +5,7 @@ const {
 	checkStringForWords
 } = require('./utils');
 const sgMail = require('@sendgrid/mail');
+var Tesseract = require('tesseract.js');
 
 /**
  * Checks if giveaway has already been entered
@@ -22,6 +23,26 @@ async function alreadyEntered(page) {
 	} catch (error) {
 		//nothing to do here...
 	}
+	if (!alreadyEntered) {
+		try {
+			const resultTextEl = await page.waitForSelector(
+				'span.a-size-medium.a-color-secondary.a-text-bold.prize-title',
+				{
+					timeout: 1000
+				}
+			);
+			const resultText = await page.evaluate(
+				resultTextEl => resultTextEl.textContent,
+				resultTextEl
+			);
+			if (!resultText.includes('chance')) {
+				alreadyEntered = true;
+			}
+		} catch (error) {
+			//nothing to do here...
+		}
+	}
+
 	return alreadyEntered;
 }
 
@@ -36,12 +57,43 @@ async function checkForSwitchAccount(page) {
 		await page.waitForSelector('.cvf-widget-form-account-switcher', {
 			timeout: 500
 		});
-		console.log('Whoa, got to re-signin!');
+		console.log('On switch account page');
 		const switchAccountPromise = page.waitForNavigation();
 		await page.click('.cvf-account-switcher-spacing-top-micro');
 		await switchAccountPromise;
 	} catch (error) {
 		//nothing to do here...
+	}
+}
+
+/**
+ * Check to see of we have been presented a sign in button.
+ * Click it if we do.
+ * @param {Puppeteer.Page} page
+ * @returns {Promise<void>}
+ */
+async function checkForSignInButton(page) {
+	try {
+		await page.waitForSelector('a[class=a-button-text][role=button]', {
+			timeout: 500
+		});
+		console.log('On Sign In Button');
+		const signInButtonPromise = page.waitForNavigation();
+		await page.click('a[class=a-button-text][role=button]');
+		await signInButtonPromise;
+		await page.waitForSelector('.cvf-widget-form-account-switcher', {
+			timeout: 500
+		});
+		//Assume that we just advanced to the switch account page.
+		await checkForSwitchAccount(page);
+		//Go back to the switch account page after clicking though it.
+		await page.goBack();
+		//Go back to the page that had the Sign In Button
+		await page.goBack();
+		//Refresh the page to get a box or video.
+		await page.reload();
+	} catch (error) {
+		//nothing to do here
 	}
 }
 
@@ -62,6 +114,23 @@ async function checkForCaptcha(page) {
 			message: message
 		};
 		sendSystemNotification(notification);
+		await page.waitForSelector('.a-dynamic-image', { timeout: 1000 });
+		const url = await page.$eval(
+			'img[src*="opfcaptcha-prod"]',
+			el => el.src
+		);
+		const tessValue = await Tesseract.recognize(url).then(function(result) {
+			return result;
+		});
+		console.log('OCR Value:  ' + tessValue.text.trim().replace(' ', ''));
+		await page.waitForSelector('#image_captcha_input');
+		await page.click('#image_captcha_input');
+		await page.type(
+			'#image_captcha_input',
+			tessValue.text.trim().replace(' ', '')
+		);
+		await page.click('#image_captcha_input');
+		await page.click('.a-button-input');
 		await page.waitFor(() => !document.querySelector('#image_captcha'), {
 			timeout: 0
 		});
@@ -90,7 +159,13 @@ async function checkForPassword(page, pageNumber) {
 	await page.click('#ap_password');
 	await page.type('#ap_password', process.env.AMAZON_PASSWORD);
 
-	await page.waitForSelector('#signInSubmit');
+	try {
+		await page.waitForSelector('#signInSubmit', { timeout: 500 });
+	} catch (error) {
+		//no submit button, user must have clicked it themselves...
+		return;
+	}
+
 	const signInPromise = page.waitForNavigation();
 	await page.click('#signInSubmit');
 	await signInPromise;
@@ -131,7 +206,6 @@ async function isBlackListed(page, giveawayNumber) {
 	} catch (error) {
 		return null;
 	}
-	return null;
 }
 
 /**
@@ -169,10 +243,30 @@ async function navigateToGiveaway(page, giveawayNumber) {
  * @returns {Promise<boolean>}
  */
 async function handleGiveawayResult(page) {
+	let resultTextEl;
 	try {
-		const resultTextEl = await page.waitForSelector(
-			'.qa-giveaway-result-text'
-		);
+		resultTextEl = await page.waitForSelector('.qa-giveaway-result-text', {
+			timeout: 10000
+		});
+	} catch (error) {
+		//could not find .qa-giveaway-result-text
+	}
+	if (!resultTextEl) {
+		try {
+			resultTextEl = await page.waitForSelector(
+				'.a-text-bold.prize-title',
+				{ timeout: 10000 }
+			);
+		} catch (error) {
+			//could not find .a-text-bold.prize-title
+		}
+	}
+	if (!resultTextEl) {
+		console.log('could not find result text, oh well. Moving on!');
+		return false;
+	}
+
+	try {
 		const resultText = await page.evaluate(
 			resultTextEl => resultTextEl.textContent,
 			resultTextEl
@@ -187,7 +281,10 @@ async function handleGiveawayResult(page) {
 
 			const winningEntryUrl = 'Winning Entry URL: ' + page.url();
 			console.log(winningEntryUrl);
-			if (process.env.SENDGRID_API_KEY) {
+			if (
+				process.env.SENDGRID_API_KEY &&
+				process.env.SENDGRID_API_KEY !== ''
+			) {
 				sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 				const msg = {
 					to: process.env.AMAZON_USERNAME,
@@ -195,7 +292,7 @@ async function handleGiveawayResult(page) {
 					subject: 'giveaway-grabber: You won!',
 					text: winningEntryUrl
 				};
-				if (process.env.SENDGRID_CC) {
+				if (process.env.SENDGRID_CC && process.env.SENDGRID_CC !== '') {
 					msg.cc = process.env.SENDGRID_CC;
 				}
 				console.log('sending email');
@@ -217,17 +314,29 @@ async function handleGiveawayResult(page) {
  * @returns {Promise<void>}
  */
 async function enterNoEntryRequirementGiveaway(page, repeatAttempt) {
-	console.log('waiting for box...');
+	await checkForSignInButton(page);
 	await checkForSwitchAccount(page);
 	await checkForPassword(page);
 	await checkForCaptcha(page);
+	console.log('waiting for box...');
+	let selector = null;
 	try {
-		await page.waitForSelector('.tapToSeeText', { visible: true });
-		await page.waitFor(
-			() => document.querySelector('.tapToSeeText').style.opacity === '1'
-		);
-		await page.waitForSelector('#box_click_target');
-		await page.click('#box_click_target', { delay: 2000 });
+		await page.waitForSelector('.box-click-area', { timeout: 2000 });
+		selector = '.box-click-area';
+	} catch (error) {
+		//could not find box-click-area
+	}
+	if (!selector) {
+		try {
+			await page.waitForSelector('#box_click_target', { timeout: 2000 });
+			selector = '#box_click_target';
+		} catch (error) {
+			//could not find box_click_target
+		}
+	}
+
+	try {
+		await page.click(selector, { delay: 2000 });
 	} catch (error) {
 		console.log('could not find box?');
 	}
@@ -245,27 +354,43 @@ async function enterNoEntryRequirementGiveaway(page, repeatAttempt) {
  * @returns {Promise<void>}
  */
 async function enterVideoGiveaway(page) {
+	await checkForSignInButton(page);
 	await checkForSwitchAccount(page);
 	await checkForPassword(page);
 	await checkForCaptcha(page);
 	console.log('waiting for video (~15 secs)...');
+	let selector = null;
 	try {
 		await page.waitForSelector('#youtube-iframe', { timeout: 1000 });
+		selector = '#youtube-iframe';
 	} catch (error) {
-		console.log('could not find video, oh well. Moving on!');
-		return;
+		//could not find #youtube-iframe
+	}
+	if (!selector) {
+		try {
+			await page.waitForSelector('.youtube-video', { timeout: 1000 });
+			selector = '.youtube-video';
+		} catch (error) {
+			console.log('could not find video, oh well. Moving on!');
+			return;
+		}
 	}
 
-	await page.click('#youtube-iframe');
+	await page.click(selector);
 	await page.waitFor(15000);
 
 	try {
-		await page.waitForSelector(
-			'#videoSubmitForm > .a-button-stack > #enter-youtube-video-button > .a-button-inner > .a-button-input'
-		);
-		await page.click(
-			'#videoSubmitForm > .a-button-stack > #enter-youtube-video-button > .a-button-inner > .a-button-input'
-		);
+		if (selector === '#youtube-iframe') {
+			await page.waitForSelector(
+				'#videoSubmitForm > .a-button-stack > #enter-youtube-video-button > .a-button-inner > .a-button-input'
+			);
+			await page.click(
+				'#videoSubmitForm > .a-button-stack > #enter-youtube-video-button > .a-button-inner > .a-button-input'
+			);
+		} else {
+			await page.waitForSelector('.youtube-continue-button');
+			await page.click('.youtube-continue-button');
+		}
 	} catch (error) {
 		console.log('no submit button found, oh well. Moving on!');
 		return;
@@ -283,10 +408,10 @@ async function enterVideoGiveaway(page) {
 async function enterGiveaways(page, pageNumber) {
 	//loop through each giveaway item
 	console.log('Page ' + pageNumber + ' Start:');
-	let giveawayExists = true;
 	const giveawayKeys = new Array(24);
 	await asyncForEach(giveawayKeys, async (val, index) => {
 		let i = index + 1;
+		let giveawayExists = true;
 		try {
 			await page.waitForSelector(
 				`.listing-info-container > .a-section:nth-of-type(${i})`,
@@ -300,8 +425,9 @@ async function enterGiveaways(page, pageNumber) {
 		if (!giveawayExists) {
 			// it's weird that it couldn't find a giveaway, let's make sure we
 			// aren't on some other page...
+			await checkForSignInButton(page);
 			await checkForSwitchAccount(page);
-			await checkForPassword(page);
+			await checkForPassword(page, pageNumber);
 			await checkForCaptcha(page);
 			return;
 		}
@@ -356,6 +482,7 @@ async function enterGiveaways(page, pageNumber) {
 
 			//go back
 			await page.goBack();
+			await checkForSignInButton(page);
 			await checkForSwitchAccount(page);
 			await checkForPassword(page, pageNumber);
 		} else {

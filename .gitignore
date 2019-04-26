@@ -1,3 +1,5 @@
 .idea/
 node_modules/
 .env
+/eng.traineddata
+.ggrc.json
