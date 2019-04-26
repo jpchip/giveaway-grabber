@@ -49,7 +49,10 @@ if (args.sendgrid_cc && args.sendgrid_cc !== '') {
 
 //start index code
 (async () => {
-	const browser = await puppeteer.launch({ headless: false });
+	const browser = await puppeteer.launch({
+		headless: false,
+		args: ['--mute-audio']
+	});
 	const page = await browser.newPage();
 
 	let pageNumber = 1;
