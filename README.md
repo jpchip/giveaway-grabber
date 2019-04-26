@@ -83,6 +83,8 @@ After running `gg init`, you'll have a `.ggrc.json` file in your directory. It w
 
 If you have two factor authentication enabled, set the `2FA` option. The script will wait for you to enter your code. 
 
+If you set `remember_me` to true, you should only have to enter your two factor code the first time you start the script. 
+
 ### Blacklist
 
 If there are types of giveaways you always want to skip, you can add a comma separated list of keywords 
