@@ -56,21 +56,21 @@ module.exports = async function(
 	await signInPromise;
 
 	if (twoFactorAuth) {
-		//wait here until user submits two factor auth code
-		console.log('Waiting for two factor authentication...');
-
-		if (rememberMe) {
-			try {
+		try {
+			await page.waitForSelector('#auth-mfa-otpcode', {
+				timeout: 1000
+			});
+			if (rememberMe) {
 				await page.waitForSelector('#auth-mfa-remember-device', {
 					timeout: 1000
 				});
 				await page.click('#auth-mfa-remember-device');
-			} catch (error) {
-				//couldn't click remember device, no big deal
 			}
+			console.log('Waiting for two factor authentication...');
+			const twoFactorAuthPromise = page.waitForNavigation({ timeout: 0 });
+			await twoFactorAuthPromise;
+		} catch (error) {
+			//couldn't click remember device, no big deal
 		}
-
-		const twoFactorAuthPromise = page.waitForNavigation({ timeout: 0 });
-		await twoFactorAuthPromise;
 	}
 };
