@@ -49,10 +49,14 @@ if (args.sendgrid_cc && args.sendgrid_cc !== '') {
 
 //start index code
 (async () => {
-	const browser = await puppeteer.launch({
+	let config = {
 		headless: false,
 		args: ['--mute-audio']
-	});
+	};
+	if (args['remember_me']) {
+		config.userDataDir = './user_data';
+	}
+	const browser = await puppeteer.launch(config);
 	const page = await browser.newPage();
 
 	let pageNumber = 1;
@@ -61,7 +65,14 @@ if (args.sendgrid_cc && args.sendgrid_cc !== '') {
 	}
 
 	//sign in
-	await signIn(page, username, password, pageNumber, args['2FA']);
+	await signIn(
+		page,
+		username,
+		password,
+		pageNumber,
+		args['2FA'],
+		args['remember_me']
+	);
 
 	//enter giveaways
 	await enterGiveaways(page, args.page || 1);

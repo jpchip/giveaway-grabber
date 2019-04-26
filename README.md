@@ -49,6 +49,10 @@ Other available commands:
 | `gg --page=[number]` | Starts script on given page number (eg. `gg --page=34`) |
 | `gg --config==[string]` | Specify path to JSON config file (eg. `gg --config=/var/myconfig.json`) |
 
+If you would rather have the output write to a file then stdout, pipe it like:
+
+`gg > gg.log 2>&1`
+
 ## Configuration
 
 After running `gg init`, you'll have a `.ggrc.json` file in your directory. It will look like this:
@@ -58,6 +62,7 @@ After running `gg init`, you'll have a `.ggrc.json` file in your directory. It w
   "username": "test@example.com",
   "password": "123456",
   "2FA": false,
+  "remember_me": false,
   "sendgrid_api_key": "",
   "sendgrid_cc": "",
   "blacklist": "floss,socks,ties"
@@ -69,6 +74,7 @@ After running `gg init`, you'll have a `.ggrc.json` file in your directory. It w
 | username  | Your Amazon Account Email Address  |
 | password  | Your Amazon Account Password  |
 | 2FA | Set true if you have two factor authentication enabled |
+| remember_me | Set true if you want to stay logged in between running scripts |
 | sendgrid_api_key | Your [sendgrid](https://sendgrid.com/) API key, if you want to receive an email when you win. Optional |
 | sendgrid_cc | An email address to be cc'ed if you win |
 | blacklist | Comma delimited list of keywords to avoid when entering giveaways. Optional |
@@ -76,6 +82,8 @@ After running `gg init`, you'll have a `.ggrc.json` file in your directory. It w
 ### Two factor Authentication (2FA)
 
 If you have two factor authentication enabled, set the `2FA` option. The script will wait for you to enter your code. 
+
+If you set `remember_me` to true, you should only have to enter your two factor code the first time you start the script. 
 
 ### Blacklist
 

@@ -5,6 +5,7 @@
  * @param {string} password
  * @param {number} pageNumber
  * @param {boolean} twoFactorAuth
+ * @param {boolean} rememberMe
  * @returns {Promise<void>}
  */
 module.exports = async function(
@@ -12,7 +13,8 @@ module.exports = async function(
 	username,
 	password,
 	pageNumber,
-	twoFactorAuth
+	twoFactorAuth,
+	rememberMe
 ) {
 	const returnUrl = encodeURIComponent(
 		'https://www.amazon.com/ga/giveaways?pageId=' + pageNumber
@@ -23,13 +25,30 @@ module.exports = async function(
 			'&switch_account='
 	);
 
-	await page.waitForSelector('#ap_email');
-	await page.click('#ap_email');
-	await page.type('#ap_email', username);
+	try {
+		await page.waitForSelector('#ap_email', {
+			timeout: 1000
+		});
+		await page.click('#ap_email');
+		await page.type('#ap_email', username);
+	} catch (error) {
+		console.log('No email field');
+	}
 
 	await page.waitForSelector('#ap_password');
 	await page.click('#ap_password');
 	await page.type('#ap_password', password);
+
+	if (rememberMe) {
+		try {
+			await page.waitForSelector('[name=rememberMe]', {
+				timeout: 1000
+			});
+			await page.click('[name=rememberMe]');
+		} catch (error) {
+			// couldn't click rememberMe, no big deal
+		}
+	}
 
 	const signInPromise = page.waitForNavigation();
 	await page.waitForSelector('#signInSubmit');
@@ -37,9 +56,21 @@ module.exports = async function(
 	await signInPromise;
 
 	if (twoFactorAuth) {
-		//wait here until user submits two factor auth code
-		console.log('Waiting for two factor authentication...');
-		const twoFactorAuthPromise = page.waitForNavigation({ timeout: 0 });
-		await twoFactorAuthPromise;
+		try {
+			await page.waitForSelector('#auth-mfa-otpcode', {
+				timeout: 1000
+			});
+			if (rememberMe) {
+				await page.waitForSelector('#auth-mfa-remember-device', {
+					timeout: 1000
+				});
+				await page.click('#auth-mfa-remember-device');
+			}
+			console.log('Waiting for two factor authentication...');
+			const twoFactorAuthPromise = page.waitForNavigation({ timeout: 0 });
+			await twoFactorAuthPromise;
+		} catch (error) {
+			//couldn't click remember device, no big deal
+		}
 	}
 };

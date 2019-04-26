@@ -26,6 +26,12 @@ exports.handler = function(argv) {
 					default: false
 				},
 				{
+					name: 'remember_me',
+					message: 'Stay logged in',
+					type: 'confirm',
+					default: false
+				},
+				{
 					name: 'sendgrid_api_key',
 					message: 'Sendgrid API Key (optional, for emails on win):',
 					default: ''
