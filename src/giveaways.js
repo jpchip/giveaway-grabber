@@ -58,7 +58,9 @@ async function checkForSwitchAccount(page) {
 			timeout: 500
 		});
 		console.log('On switch account page');
-		const switchAccountPromise = page.waitForNavigation();
+		const switchAccountPromise = page.waitForNavigation({
+			waitfor: 'domcontentloaded'
+		});
 		await page.click('.cvf-account-switcher-spacing-top-micro');
 		await switchAccountPromise;
 	} catch (error) {
@@ -78,7 +80,9 @@ async function checkForSignInButton(page) {
 			timeout: 500
 		});
 		console.log('On Sign In Button');
-		const signInButtonPromise = page.waitForNavigation();
+		const signInButtonPromise = page.waitForNavigation({
+			waitfor: 'domcontentloaded'
+		});
 		await page.click('a[class=a-button-text][role=button]');
 		await signInButtonPromise;
 		await page.waitForSelector('.cvf-widget-form-account-switcher', {
@@ -166,7 +170,9 @@ async function checkForPassword(page, pageNumber) {
 		return;
 	}
 
-	const signInPromise = page.waitForNavigation();
+	const signInPromise = page.waitForNavigation({
+		waitfor: 'domcontentloaded'
+	});
 	await page.click('#signInSubmit');
 	await signInPromise;
 
@@ -229,7 +235,9 @@ async function hasGiveawayEnded(page) {
  * @returns {Promise<void>}
  */
 async function navigateToGiveaway(page, giveawayNumber) {
-	const giveawayItemPromise = page.waitForNavigation();
+	const giveawayItemPromise = page.waitForNavigation({
+		waitfor: 'domcontentloaded'
+	});
 	await page.click(
 		`ul.listing-info-container > li.a-section.a-spacing-base.listing-item:nth-of-type(${giveawayNumber}) a.item-link`
 	);
@@ -500,10 +508,11 @@ async function enterGiveaways(page, pageNumber) {
 		return;
 	}
 
-	const navigationPromise = page.waitForNavigation();
+	const navigationPromise = page.waitForNavigation({
+		waitfor: 'domcontentloaded'
+	});
 	await page.click('ul.a-pagination li:last-child:not(.a-disabled)');
 	await navigationPromise;
-
 	console.log('Next Page!');
 	await enterGiveaways(page, pageNumber + 1);
 }
