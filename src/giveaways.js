@@ -361,14 +361,14 @@ async function enterVideoGiveaway(page) {
 	console.log('waiting for video (~15 secs)...');
 	let selector = null;
 	try {
-		await page.waitForSelector('#youtube-iframe', { timeout: 1000 });
+		await page.waitForSelector('#youtube-iframe', { timeout: 10000 });
 		selector = '#youtube-iframe';
 	} catch (error) {
 		//could not find #youtube-iframe
 	}
 	if (!selector) {
 		try {
-			await page.waitForSelector('.youtube-video', { timeout: 1000 });
+			await page.waitForSelector('.youtube-video', { timeout: 10000 });
 			selector = '.youtube-video';
 		} catch (error) {
 			console.log('could not find video, oh well. Moving on!');
