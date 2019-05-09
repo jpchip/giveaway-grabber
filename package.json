@@ -47,6 +47,7 @@
     "node-notifier": "~5.4.0",
     "puppeteer": "~1.13.0",
     "tesseract.js": "~1.0.14",
+    "sqlite3": "~4.0.6",
     "yargs": "~13.2.2"
   },
   "devDependencies": {
