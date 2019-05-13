@@ -426,10 +426,10 @@ async function enterVideoGiveaway(page) {
 			await page.click('#enter-video-button > span > input');
 		} else if (selector === 'div.amazon-video') {
 			await page.waitForSelector(
-				'#reactApp > div > div > div > div > div > div > div.content > div > div.a-section.a-spacing-none.column-right > div > div.participation-need-action > div > div > div > div.a-button.a-button-primary.amazon-video-continue-button'
+				'.amazon-video-continue-button'
 			);
 			await page.click(
-				'#reactApp > div > div > div > div > div > div > div.content > div > div.a-section.a-spacing-none.column-right > div > div.participation-need-action > div > div > div > div.a-button.a-button-primary.amazon-video-continue-button'
+				'.amazon-video-continue-button'
 			);
 		} else {
 			await page.waitForSelector('.youtube-continue-button');
