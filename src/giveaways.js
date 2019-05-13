@@ -411,8 +411,7 @@ async function enterVideoGiveaway(page) {
 	}
 
 	await page.click(selector);
-	await page.waitFor(15000);
-
+	await page.waitFor(16000);
 	try {
 		if (selector === '#youtube-iframe') {
 			await page.waitForSelector(
@@ -426,10 +425,10 @@ async function enterVideoGiveaway(page) {
 			await page.click('#enter-video-button > span > input');
 		} else if (selector === 'div.amazon-video') {
 			await page.waitForSelector(
-				'.amazon-video-continue-button'
+				'.amazon-video-continue-button > .a-button-inner'
 			);
 			await page.click(
-				'.amazon-video-continue-button'
+				'.amazon-video-continue-button > .a-button-inner'
 			);
 		} else {
 			await page.waitForSelector('.youtube-continue-button');
