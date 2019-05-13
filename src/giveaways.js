@@ -361,19 +361,51 @@ async function enterVideoGiveaway(page) {
 	console.log('waiting for video (~15 secs)...');
 	let selector = null;
 	try {
-		await page.waitForSelector('#youtube-iframe', { timeout: 1000 });
+		await page.waitForSelector('#youtube-iframe', { timeout: 5000 });
 		selector = '#youtube-iframe';
 	} catch (error) {
 		//could not find #youtube-iframe
+		console.log(
+			'could not find #youtube-iframe, trying other selectors...'
+		);
 	}
 	if (!selector) {
 		try {
-			await page.waitForSelector('.youtube-video', { timeout: 1000 });
+			await page.waitForSelector('.youtube-video', { timeout: 5000 });
 			selector = '.youtube-video';
 		} catch (error) {
-			console.log('could not find video, oh well. Moving on!');
-			return;
+			console.log('could not find .youtube-video');
 		}
+	}
+
+	// if using Chrome instead of Chromium, check for other video types
+	if (process.env.CHROME_EXECUTABLE_PATH  &&
+		process.env.CHROME_EXECUTABLE_PATH !== '') {
+		if (!selector) {
+			try {
+				await page.waitForSelector('#airy-container', {
+					timeout: 5000
+				});
+				selector = '#airy-container';
+			} catch (error) {
+				console.log('could not find #airy-container');
+			}
+		}
+		if (!selector) {
+			try {
+				await page.waitForSelector('div.amazon-video', {
+					timeout: 5000
+				});
+				selector = 'div.amazon-video';
+			} catch (error) {
+				console.log('could not find div.amazon-video');
+			}
+		}
+	}
+
+	if (!selector) {
+		console.log('could not find video, oh well. Moving on!');
+		return;
 	}
 
 	await page.click(selector);
@@ -386,6 +418,16 @@ async function enterVideoGiveaway(page) {
 			);
 			await page.click(
 				'#videoSubmitForm > .a-button-stack > #enter-youtube-video-button > .a-button-inner > .a-button-input'
+			);
+		} else if (selector === '#airy-container') {
+			await page.waitForSelector('#enter-video-button > span > input');
+			await page.click('#enter-video-button > span > input');
+		} else if (selector === 'div.amazon-video') {
+			await page.waitForSelector(
+				'#reactApp > div > div > div > div > div > div > div.content > div > div.a-section.a-spacing-none.column-right > div > div.participation-need-action > div > div > div > div.a-button.a-button-primary.amazon-video-continue-button'
+			);
+			await page.click(
+				'#reactApp > div > div > div > div > div > div > div.content > div > div.a-section.a-spacing-none.column-right > div > div.participation-need-action > div > div > div > div.a-button.a-button-primary.amazon-video-continue-button'
 			);
 		} else {
 			await page.waitForSelector('.youtube-continue-button');

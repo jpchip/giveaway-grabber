@@ -45,6 +45,7 @@ exports.handler = function(argv) {
 			])
 			.then(answers => {
 				answers.sendgrid_cc = '';
+				answers.chromeExecutablePath = '';
 				fs.writeFile(
 					'./.ggrc.json',
 					JSON.stringify(answers, null, 2),
