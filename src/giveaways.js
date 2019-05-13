@@ -379,8 +379,10 @@ async function enterVideoGiveaway(page) {
 	}
 
 	// if using Chrome instead of Chromium, check for other video types
-	if (process.env.CHROME_EXECUTABLE_PATH  &&
-		process.env.CHROME_EXECUTABLE_PATH !== '') {
+	if (
+		process.env.CHROME_EXECUTABLE_PATH &&
+		process.env.CHROME_EXECUTABLE_PATH !== ''
+	) {
 		if (!selector) {
 			try {
 				await page.waitForSelector('#airy-container', {

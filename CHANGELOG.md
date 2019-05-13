@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.3.0 - 2019-05-13
+### Added
+- Add ability to point to custom install of Chrome
+- Add Support for Amazon Video Entries (#81)[https://github.com/jpchip/giveaway-grabber/issues/81]
+
+
+
 ## 3.2.0 - 2019-04-26
 ### Added
 - Remember me option (#57)[https://github.com/jpchip/giveaway-grabber/issues/57] (#36)[https://github.com/jpchip/giveaway-grabber/issues/36]
