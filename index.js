@@ -59,7 +59,7 @@ if (args.chromeExecutablePath && args.chromeExecutablePath !== '') {
 	if (args['remember_me']) {
 		config.userDataDir = './user_data';
 	}
-	if (args['chromeExecutablePath']) {
+	if (process.env.CHROME_EXECUTABLE_PATH) {
 		config.executablePath = args['chromeExecutablePath'];
 	}
 	const browser = await puppeteer.launch(config);
