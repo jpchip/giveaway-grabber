@@ -2,7 +2,8 @@
 const {
 	asyncForEach,
 	sendSystemNotification,
-	checkStringForWords
+	checkStringForWords,
+	checkMinPrice
 } = require('./utils');
 const sgMail = require('@sendgrid/mail');
 var Tesseract = require('tesseract.js');
@@ -194,6 +195,7 @@ async function isBlackListed(page, giveawayNumber) {
 			`ul.listing-info-container > li.a-section.a-spacing-base.listing-item:nth-of-type(${giveawayNumber}) .prize-title`,
 			{ timeout: 500 }
 		);
+
 		const giveawayTitleText = await page.evaluate(
 			giveawayTitleEl => giveawayTitleEl.textContent,
 			giveawayTitleEl
@@ -220,6 +222,34 @@ async function hasGiveawayEnded(page) {
 		return false;
 	}
 	return true;
+}
+
+/**
+ * Check if Price is greater than min
+ * @param {Puppeteer.Page} page
+ * @returns {Promise<boolean>}
+ */
+async function hasCostGreaterThanMinimum(page) {
+	try {
+		let resultTextEl;
+		resultTextEl = await page.waitForSelector('.a-price-whole', {
+			timeout: 500
+		});
+		const resultText = await page.evaluate(
+			resultTextEl => resultTextEl.textContent,
+			resultTextEl
+		);
+
+		const giveawayCostEl = resultText.substr(1);
+
+		return checkMinPrice(
+			Number(process.env.MINIMUM_PRICE),
+			Number(giveawayCostEl)
+		);
+	} catch (error) {
+		console.log('could not find the item cost, filter ignored!');
+		return true;
+	}
 }
 
 /**
@@ -427,9 +457,7 @@ async function enterVideoGiveaway(page) {
 			await page.waitForSelector(
 				'.amazon-video-continue-button > .a-button-inner'
 			);
-			await page.click(
-				'.amazon-video-continue-button > .a-button-inner'
-			);
+			await page.click('.amazon-video-continue-button > .a-button-inner');
 		} else {
 			await page.waitForSelector('.youtube-continue-button');
 			await page.click('.youtube-continue-button');
@@ -514,6 +542,18 @@ async function enterGiveaways(page, pageNumber) {
 				return;
 			} else {
 				console.log('giveaway ' + i + ' is ready!');
+			}
+
+			//check if price is greater than minimum
+			let priceMatch = await hasCostGreaterThanMinimum(page);
+			if (!priceMatch) {
+				console.log(
+					`giveaway ${i} price smaller than ${
+						process.env.MINIMUM_PRICE
+					}$.`
+				);
+				await page.goBack();
+				return;
 			}
 
 			//try to win!

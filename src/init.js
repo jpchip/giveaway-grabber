@@ -41,6 +41,12 @@ exports.handler = function(argv) {
 					message: 'Black List (optional, comma separated list)',
 					type: 'input',
 					default: ''
+				},
+				{
+					name: 'minimum_price',
+					message: 'Minimum item value (optional, default 0)',
+					type: 'input',
+					default: 0
 				}
 			])
 			.then(answers => {

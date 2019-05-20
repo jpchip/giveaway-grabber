@@ -1,4 +1,4 @@
-const { checkStringForWords } = require('./utils');
+const { checkStringForWords, checkMinPrice } = require('./utils');
 
 describe('checkStringForWords', () => {
 	test('matches whole words in string', () => {
@@ -63,5 +63,14 @@ describe('checkStringForWords', () => {
 		expect(match).toBeNull();
 		match = checkStringForWords(null, null);
 		expect(match).toBeNull();
+	});
+
+	test('return true if price is bigger than min', () => {
+		let match = checkMinPrice(10, 15);
+		expect(match).toEqual(true);
+		match = checkMinPrice(10, 8);
+		expect(match).toEqual(false);
+		match = checkMinPrice(10, 10);
+		expect(match).toEqual(true);
 	});
 });
