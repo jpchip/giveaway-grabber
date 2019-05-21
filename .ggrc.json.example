@@ -6,5 +6,6 @@
   "sendgrid_api_key": "",
   "sendgrid_cc": "test@example.com",
   "blacklist": "socks,kindle edition,floss",
-  "chromeExecutablePath": "/path/to/Chrome"
+  "chromeExecutablePath": "/path/to/Chrome",
+  "minimum_price": 0
 }
