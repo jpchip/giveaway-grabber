@@ -49,6 +49,9 @@ if (args.sendgrid_cc && args.sendgrid_cc !== '') {
 if (args.chromeExecutablePath && args.chromeExecutablePath !== '') {
 	process.env.CHROME_EXECUTABLE_PATH = args.chromeExecutablePath;
 }
+if (args.minimum_price && args.minimum_price !== '') {
+	process.env.MINIMUM_PRICE = args.minimum_price;
+}
 
 //start index code
 (async () => {

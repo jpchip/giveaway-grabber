@@ -67,7 +67,8 @@ After running `gg init`, you'll have a `.ggrc.json` file in your directory. It w
   "sendgrid_api_key": "",
   "sendgrid_cc": "",
   "blacklist": "floss,socks,ties",
-  "chromeExecutablePath": ""
+  "chromeExecutablePath": "",
+  "minimum_price": 10
 }
 ```
 
@@ -81,7 +82,7 @@ After running `gg init`, you'll have a `.ggrc.json` file in your directory. It w
 | sendgrid_cc | An email address to be cc'ed if you win |
 | blacklist | Comma delimited list of keywords to avoid when entering giveaways. Optional |
 | chromeExecutablePath | Path to your own install of Chrome. Optional |
-
+| minimum_price | Skip the giveaways with items with price lower than the minimum price |
 ### Two factor Authentication (2FA)
 
 If you have two factor authentication enabled, set the `2FA` option. The script will wait for you to enter your code. 

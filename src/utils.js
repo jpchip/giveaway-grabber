@@ -60,10 +60,25 @@ function checkStringForWords(wordList, str) {
 	return match;
 }
 
+/**
+ * Checks if an item price is
+ * Greater than the minimum price
+ * @param {Number} minPrice
+ * @param {Number} itemPrice
+ * @return {boolean}
+ */
+function checkMinPrice(minPrice, itemPrice) {
+	if (typeof minPrice !== 'number' || typeof itemPrice !== 'number') {
+		return true;
+	}
+	return itemPrice >= minPrice ? true : false;
+}
+
 module.exports = {
 	asyncForEach,
 	sendSystemNotification,
-	checkStringForWords
+	checkStringForWords,
+	checkMinPrice
 };
 
 /**
