@@ -1,6 +1,6 @@
 {
   "name": "giveaway-grabber",
-  "version": "3.3.0",
+  "version": "3.4.0",
   "description": "Automates entries for Amazon Giveaways",
   "preferGlobal": true,
   "main": "index.js",
@@ -38,6 +38,10 @@
     {
       "name": "cheezwiz789",
       "url": "https://github.com/cheezwiz789"
+    },
+    {
+      "name": "Michele Fattoruso",
+      "url": "https://github.com/mfattoru"
     }
   ],
   "license": "MIT",
