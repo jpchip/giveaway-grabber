@@ -61,7 +61,6 @@ process.env.MINIMUM_PRICE = args.minimum_price || 0;
 		config.userDataDir = './user_data';
 	}
 	if (process.env.CHROME_EXECUTABLE_PATH) {
-		config.PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = true;
 		config.executablePath = args['chromeExecutablePath'];
 	}
 	const browser = await puppeteer.launch(config);

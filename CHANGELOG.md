@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.4.1 - 2019-05-28
+### Added
+- Update readme with info about chromium on macs
+- Set default minimum price to 0 (#90)[https://github.com/jpchip/giveaway-grabber/issues/90]
+
 ## 3.4.0 - 2019-05-22
 ### Added
 - Add ability to specify minimum price

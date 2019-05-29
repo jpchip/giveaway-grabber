@@ -1,6 +1,6 @@
 {
   "name": "giveaway-grabber",
-  "version": "3.4.0",
+  "version": "3.4.1",
   "description": "Automates entries for Amazon Giveaways",
   "preferGlobal": true,
   "main": "index.js",
@@ -42,6 +42,10 @@
     {
       "name": "Michele Fattoruso",
       "url": "https://github.com/mfattoru"
+    },
+    {
+      "name": "Stefano",
+      "url": "https://github.com/rinoma"
     }
   ],
   "license": "MIT",
