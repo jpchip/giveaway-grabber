@@ -2,7 +2,7 @@
 
 # giveaway-grabber 🎁
 
-This script will loop through all the [Amazon giveaways](https://www.amazon.com/ga/giveaways/) and try to submit entries for them. 
+This script will loop through all the [Amazon giveaways](https://www.amazon.com/ga/giveaways/) and try to submit entries for them.
 
 If there are things you really never want to win (like socks), you can add keywords to the blacklist in the config file
 and the script will always skip those entries.
@@ -35,7 +35,7 @@ Follow the step by step instructions, which will create a `.ggrc.json` file in y
 Run the script with:
 
 ```bash
-gg 
+gg
 ```
 
 Note that the script will crash if the Chrome window is minimized! Check the console to monitor progress.
@@ -85,13 +85,13 @@ After running `gg init`, you'll have a `.ggrc.json` file in your directory. It w
 | minimum_price | Skip the giveaways with items with price lower than the minimum price |
 ### Two factor Authentication (2FA)
 
-If you have two factor authentication enabled, set the `2FA` option. The script will wait for you to enter your code. 
+If you have two factor authentication enabled, set the `2FA` option. The script will wait for you to enter your code.
 
-If you set `remember_me` to true, you should only have to enter your two factor code the first time you start the script. 
+If you set `remember_me` to true, you should only have to enter your two factor code the first time you start the script.
 
 ### Blacklist
 
-If there are types of giveaways you always want to skip, you can add a comma separated list of keywords 
+If there are types of giveaways you always want to skip, you can add a comma separated list of keywords
 to the blacklist.
 
 Keywords are case insensitive.
@@ -100,15 +100,20 @@ The console will let you know when it skips giveaways that you marked as blackli
 
 ### Emails
 
-If you want to receive an email notification on winning, sign up for a free [sendgrid](https://sendgrid.com/) account and 
+If you want to receive an email notification on winning, sign up for a free [sendgrid](https://sendgrid.com/) account and
 add the API key to your `.ggrc.json` file. Set `sendgrid_cc` to CC the winning email to another address.
 
 ### chromeExecutablePath
 
 You can point to an existing install of Chrome using chromeExecutablePath:
 
+On Windows:
 ```
 "chromeExecutablePath" : "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
+```
+On MacOS:
+```
+"chromeExecutablePath" : "../../Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 ```
 
 This is required if you want to be able to enter all video giveaways. Chromium, which Puppeteer
@@ -117,7 +122,7 @@ but it will only enter video giveaways with YouTube videos.
 
 ## CAPTCHAs
 
-Every so often Amazon will present a CAPTCHA. The script will attempt to enter it automatically, but if it fails, it will 
+Every so often Amazon will present a CAPTCHA. The script will attempt to enter it automatically, but if it fails, it will
 pause and wait for you to enter it. The console will warn you with an `ENTER CAPTCHA!` message,
 and you **should** get a system notification (only tested it on Windows 10).
 
@@ -132,7 +137,7 @@ If you set your `sendgrid_api_key` you'll also receive an email.
 
 ## Development
 
-Clone this repo, and you run the script locally with `npm start`. Note that options 
+Clone this repo, and you run the script locally with `npm start`. Note that options
 must be passed with an extra `--`, like:
 
 ```
