@@ -545,14 +545,14 @@ async function enterGiveaways(page, pageNumber) {
 			`//ul[@class="listing-info-container"]/li[${i}]//a/div[2]/div[2]/span[contains(text(), "Watch a short video")]`
 		);
 
-		const followItem = await page.$x(
+		const followRequired = await page.$x(
 			`//ul[@class="listing-info-container"]/li[${i}]//a/div[2]/div[2]/span[contains(text(), "Follow")]`
 		);
 
 		if (
 			noEntryRequired.length > 0 ||
 			videoRequired.length > 0 ||
-			followItem.length > 0
+			followRequired.length > 0
 		) {
 			try {
 				await navigateToGiveaway(page, i);
@@ -596,7 +596,7 @@ async function enterGiveaways(page, pageNumber) {
 				await enterNoEntryRequirementGiveaway(page);
 			} else if (videoRequired.length > 0) {
 				await enterVideoGiveaway(page);
-			} else if (followItem.length > 0) {
+			} else if (followRequired.length > 0) {
 				await enterFollowGiveaway(page);
 			}
 
