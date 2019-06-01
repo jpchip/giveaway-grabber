@@ -544,10 +544,17 @@ async function enterGiveaways(page, pageNumber) {
 		const videoRequired = await page.$x(
 			`//ul[@class="listing-info-container"]/li[${i}]//a/div[2]/div[2]/span[contains(text(), "Watch a short video")]`
 		);
-
 		const followRequired = await page.$x(
 			`//ul[@class="listing-info-container"]/li[${i}]//a/div[2]/div[2]/span[contains(text(), "Follow")]`
 		);
+
+		if (
+			!(process.env.FOLLOW_GIVEAWAY == 'true') &&
+			followRequired.length > 0
+		) {
+			console.log('giveaway ' + i + ' is of follow type. Next!');
+			return;
+		}
 
 		if (
 			noEntryRequired.length > 0 ||
