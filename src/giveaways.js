@@ -431,8 +431,7 @@ async function enterVideoGiveaway(page) {
 			await page.waitForSelector('.youtube-video', { timeout: 5000 });
 			selector = '.youtube-video';
 		} catch (error) {
-			console.log('could not find video, oh well. Moving on!');
-			return;
+			console.log('could not find .youtube-video');
 		}
 	}
 
@@ -470,7 +469,6 @@ async function enterVideoGiveaway(page) {
 
 	await page.click(selector);
 	await page.waitFor(16000);
-
 	try {
 		if (selector === '#youtube-iframe') {
 			await page.waitForSelector(
