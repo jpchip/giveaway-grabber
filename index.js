@@ -52,6 +52,7 @@ if (args.chromeExecutablePath && args.chromeExecutablePath !== '') {
 	process.env.CHROME_EXECUTABLE_PATH = args.chromeExecutablePath;
 }
 process.env.MINIMUM_PRICE = args.minimum_price || 0;
+process.env.FOLLOW_GIVEAWAY = args.follow_giveaway || false;
 
 //start index code
 (async () => {

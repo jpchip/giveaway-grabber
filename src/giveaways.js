@@ -647,8 +647,23 @@ async function enterGiveaways(page, pageNumber) {
 		const videoRequired = await page.$x(
 			`//ul[@class="listing-info-container"]/li[${i}]//a/div[2]/div[2]/span[contains(text(), "Watch a short video")]`
 		);
+		const followRequired = await page.$x(
+			`//ul[@class="listing-info-container"]/li[${i}]//a/div[2]/div[2]/span[contains(text(), "Follow")]`
+		);
 
-		if (noEntryRequired.length > 0 || videoRequired.length > 0) {
+		if (
+			!(process.env.FOLLOW_GIVEAWAY == 'true') &&
+			followRequired.length > 0
+		) {
+			console.log('giveaway ' + i + ' is of follow type. Next!');
+			return;
+		}
+
+		if (
+			noEntryRequired.length > 0 ||
+			videoRequired.length > 0 ||
+			followRequired.length > 0
+		) {
 			try {
 				await navigateToGiveaway(page, i);
 			} catch (error) {
@@ -695,6 +710,8 @@ async function enterGiveaways(page, pageNumber) {
 				await enterNoEntryRequirementGiveaway(page);
 			} else if (videoRequired.length > 0) {
 				await enterVideoGiveaway(page);
+			} else if (followRequired.length > 0) {
+				await enterFollowGiveaway(page);
 			}
 
 			//go back

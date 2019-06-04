@@ -68,7 +68,8 @@ After running `gg init`, you'll have a `.ggrc.json` file in your directory. It w
   "sendgrid_cc": "",
   "blacklist": "floss,socks,ties",
   "chromeExecutablePath": "",
-  "minimum_price": 0
+  "minimum_price": 0,
+  "follow_giveaway": false
 }
 ```
 
@@ -83,6 +84,7 @@ After running `gg init`, you'll have a `.ggrc.json` file in your directory. It w
 | blacklist | Comma delimited list of keywords to avoid when entering giveaways. Optional |
 | chromeExecutablePath | Path to your own install of Chrome. Optional |
 | minimum_price | Skip the giveaways with items with price lower than the minimum price. Optional |
+| follow_giveaway | Enter the follow type giveaways. Defaults to false |
 
 ### Two factor Authentication (2FA)
 
@@ -120,6 +122,11 @@ On MacOS:
 This is required if you want to be able to enter all video giveaways. Chromium, which Puppeteer
 uses by default, does not support some of the video types used. The script will work fine without it,
 but it will only enter video giveaways with YouTube videos.
+
+### Follow Giveaways
+
+You can decide to enter the giveaways that require you to Follow the brand. By default this is set to false
+and they will not be entered. It is possible that once followed, a brand will end up sending lots of promo emails.
 
 ## CAPTCHAs
 

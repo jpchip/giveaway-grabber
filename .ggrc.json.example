@@ -2,10 +2,11 @@
   "username": "fake@example.com",
   "password": "123456",
   "2FA": false,
-  "remember_me" : false,
+  "remember_me": false,
   "sendgrid_api_key": "",
   "sendgrid_cc": "test@example.com",
   "blacklist": "socks,kindle edition,floss",
   "chromeExecutablePath": "/path/to/Chrome",
-  "minimum_price": 0
+  "minimum_price": 0,
+  "follow_giveaway": false
 }
