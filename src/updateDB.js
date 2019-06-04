@@ -2,7 +2,6 @@ const sqlite = require('./database');
 
 //A common location for performing DB upgrades
 async function updateDB() {
-	// await sqlite.open('./gg.db');
 	let version = -1;
 	let response = null;
 	try {
@@ -42,7 +41,6 @@ async function updateDB() {
 			version = 1;
 		}
 	}
-	// await sqlite.close();
 }
 
 module.exports = {

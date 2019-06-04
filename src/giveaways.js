@@ -425,6 +425,9 @@ async function enterVideoGiveaway(page) {
 		selector = '#youtube-iframe';
 	} catch (error) {
 		//could not find #youtube-iframe
+		console.log(
+			'could not find #youtube-iframe, trying other selectors...'
+		);
 	}
 	if (!selector) {
 		try {
