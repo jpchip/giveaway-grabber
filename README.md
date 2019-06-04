@@ -9,7 +9,8 @@ and the script will always skip those entries.
 
 I wanted a reason to experiment with [Puppeteer](https://github.com/GoogleChrome/puppeteer), so here goes.
 
-Note: does not support entries that require following someone.
+Note: does not support entries that require following someone. Some video giveaways require
+using Chrome instead of Chromium, see **chromeExecutablePath** section below.
 
 ## Installation
 
@@ -65,7 +66,9 @@ After running `gg init`, you'll have a `.ggrc.json` file in your directory. It w
   "remember_me": false,
   "sendgrid_api_key": "",
   "sendgrid_cc": "",
-  "blacklist": "floss,socks,ties"
+  "blacklist": "floss,socks,ties",
+  "chromeExecutablePath": "",
+  "minimum_price": 0
 }
 ```
 
@@ -73,11 +76,13 @@ After running `gg init`, you'll have a `.ggrc.json` file in your directory. It w
 | ------------- | ------------- |
 | username  | Your Amazon Account Email Address  |
 | password  | Your Amazon Account Password  |
-| 2FA | Set true if you have two factor authentication enabled |
-| remember_me | Set true if you want to stay logged in between running scripts |
+| 2FA | Set true if you have two factor authentication enabled. Defaults to false. |
+| remember_me | Set true if you want to stay logged in between running scripts. Defaults to false. |
 | sendgrid_api_key | Your [sendgrid](https://sendgrid.com/) API key, if you want to receive an email when you win. Optional |
 | sendgrid_cc | An email address to be cc'ed if you win |
 | blacklist | Comma delimited list of keywords to avoid when entering giveaways. Optional |
+| chromeExecutablePath | Path to your own install of Chrome. Optional |
+| minimum_price | Skip the giveaways with items with price lower than the minimum price. Optional |
 
 ### Two factor Authentication (2FA)
 
@@ -94,23 +99,40 @@ Keywords are case insensitive.
 
 The console will let you know when it skips giveaways that you marked as blacklisted like `giveaway 5 is blacklisted [kindle edition].`
 
+### Emails
 
-### CAPTCHAs
+If you want to receive an email notification on winning, sign up for a free [sendgrid](https://sendgrid.com/) account and
+add the API key to your `.ggrc.json` file. Set `sendgrid_cc` to CC the winning email to another address.
+
+### chromeExecutablePath
+
+You can point to an existing install of Chrome using chromeExecutablePath:
+
+On Windows:
+```
+"chromeExecutablePath" : "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
+```
+On MacOS:
+```
+"chromeExecutablePath" : "../../Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+```
+
+This is required if you want to be able to enter all video giveaways. Chromium, which Puppeteer
+uses by default, does not support some of the video types used. The script will work fine without it,
+but it will only enter video giveaways with YouTube videos.
+
+## CAPTCHAs
 
 Every so often Amazon will present a CAPTCHA. The script will attempt to enter it automatically, but if it fails, it will
 pause and wait for you to enter it. The console will warn you with an `ENTER CAPTCHA!` message,
 and you **should** get a system notification (only tested it on Windows 10).
 
-
-### Winning
+## Winning
 
 If you are lucky enough to win, you should get a system notification and the url to
 the page will be logged like `Winning Entry URL: https://amazon.com/ga/p/335..`.
 
-#### Emails
-
-If you want to also receive an email notification, sign up for a free [sendgrid](https://sendgrid.com/) account and
-add the API key to your `.ggrc.json` file.
+If you set your `sendgrid_api_key` you'll also receive an email.
 
 #### Database
 

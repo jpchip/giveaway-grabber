@@ -2,7 +2,8 @@
 const {
 	asyncForEach,
 	sendSystemNotification,
-	checkStringForWords
+	checkStringForWords,
+	checkMinPrice
 } = require('./utils');
 const sgMail = require('@sendgrid/mail');
 var Tesseract = require('tesseract.js');
@@ -196,6 +197,7 @@ async function isBlackListed(page, giveawayNumber) {
 			`ul.listing-info-container > li.a-section.a-spacing-base.listing-item:nth-of-type(${giveawayNumber}) .prize-title`,
 			{ timeout: 500 }
 		);
+
 		const giveawayTitleText = await page.evaluate(
 			giveawayTitleEl => giveawayTitleEl.textContent,
 			giveawayTitleEl
@@ -222,6 +224,34 @@ async function hasGiveawayEnded(page) {
 		return false;
 	}
 	return true;
+}
+
+/**
+ * Check if Price is greater than min
+ * @param {Puppeteer.Page} page
+ * @returns {Promise<boolean>}
+ */
+async function hasCostGreaterThanMinimum(page) {
+	try {
+		let resultTextEl;
+		resultTextEl = await page.waitForSelector('.a-price-whole', {
+			timeout: 500
+		});
+		const resultText = await page.evaluate(
+			resultTextEl => resultTextEl.textContent,
+			resultTextEl
+		);
+
+		const giveawayCostEl = resultText.substr(1);
+
+		return checkMinPrice(
+			Number(process.env.MINIMUM_PRICE),
+			Number(giveawayCostEl)
+		);
+	} catch (error) {
+		console.log('could not find the item cost, filter ignored!');
+		return true;
+	}
 }
 
 /**
@@ -391,14 +421,14 @@ async function enterVideoGiveaway(page) {
 	console.log('waiting for video (~15 secs)...');
 	let selector = null;
 	try {
-		await page.waitForSelector('#youtube-iframe', { timeout: 1000 });
+		await page.waitForSelector('#youtube-iframe', { timeout: 5000 });
 		selector = '#youtube-iframe';
 	} catch (error) {
 		//could not find #youtube-iframe
 	}
 	if (!selector) {
 		try {
-			await page.waitForSelector('.youtube-video', { timeout: 1000 });
+			await page.waitForSelector('.youtube-video', { timeout: 5000 });
 			selector = '.youtube-video';
 		} catch (error) {
 			console.log('could not find video, oh well. Moving on!');
@@ -406,8 +436,40 @@ async function enterVideoGiveaway(page) {
 		}
 	}
 
+	// if using Chrome instead of Chromium, check for other video types
+	if (
+		process.env.CHROME_EXECUTABLE_PATH &&
+		process.env.CHROME_EXECUTABLE_PATH !== ''
+	) {
+		if (!selector) {
+			try {
+				await page.waitForSelector('#airy-container', {
+					timeout: 5000
+				});
+				selector = '#airy-container';
+			} catch (error) {
+				console.log('could not find #airy-container');
+			}
+		}
+		if (!selector) {
+			try {
+				await page.waitForSelector('div.amazon-video', {
+					timeout: 5000
+				});
+				selector = 'div.amazon-video';
+			} catch (error) {
+				console.log('could not find div.amazon-video');
+			}
+		}
+	}
+
+	if (!selector) {
+		console.log('could not find video, oh well. Moving on!');
+		return;
+	}
+
 	await page.click(selector);
-	await page.waitFor(15000);
+	await page.waitFor(16000);
 
 	try {
 		if (selector === '#youtube-iframe') {
@@ -417,6 +479,14 @@ async function enterVideoGiveaway(page) {
 			await page.click(
 				'#videoSubmitForm > .a-button-stack > #enter-youtube-video-button > .a-button-inner > .a-button-input'
 			);
+		} else if (selector === '#airy-container') {
+			await page.waitForSelector('#enter-video-button > span > input');
+			await page.click('#enter-video-button > span > input');
+		} else if (selector === 'div.amazon-video') {
+			await page.waitForSelector(
+				'.amazon-video-continue-button > .a-button-inner'
+			);
+			await page.click('.amazon-video-continue-button > .a-button-inner');
 		} else {
 			await page.waitForSelector('.youtube-continue-button');
 			await page.click('.youtube-continue-button');
@@ -568,6 +638,18 @@ async function enterGiveaways(page, pageNumber) {
 				return;
 			} else {
 				console.log('giveaway ' + i + ' is ready!');
+			}
+
+			//check if price is greater than minimum
+			let priceMatch = await hasCostGreaterThanMinimum(page);
+			if (!priceMatch) {
+				console.log(
+					`giveaway ${i} price smaller than ${
+						process.env.MINIMUM_PRICE
+					}$.`
+				);
+				await page.goBack();
+				return;
 			}
 
 			//try to win!

@@ -48,6 +48,10 @@ if (args.sendgrid_api_key && args.sendgrid_api_key !== '') {
 if (args.sendgrid_cc && args.sendgrid_cc !== '') {
 	process.env.SENDGRID_CC = args.sendgrid_cc;
 }
+if (args.chromeExecutablePath && args.chromeExecutablePath !== '') {
+	process.env.CHROME_EXECUTABLE_PATH = args.chromeExecutablePath;
+}
+process.env.MINIMUM_PRICE = args.minimum_price || 0;
 
 //start index code
 (async () => {
@@ -57,6 +61,9 @@ if (args.sendgrid_cc && args.sendgrid_cc !== '') {
 	};
 	if (args['remember_me']) {
 		config.userDataDir = './user_data';
+	}
+	if (process.env.CHROME_EXECUTABLE_PATH) {
+		config.executablePath = args['chromeExecutablePath'];
 	}
 	const browser = await puppeteer.launch(config);
 	const page = await browser.newPage();
