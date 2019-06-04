@@ -4,3 +4,5 @@ node_modules/
 /eng.traineddata
 .ggrc.json
 user_data/
+.vscode
+gg.db

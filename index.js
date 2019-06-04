@@ -5,6 +5,8 @@ const findUp = require('find-up');
 const fs = require('fs');
 const { enterGiveaways } = require('./src/giveaways');
 const signIn = require('./src/signIn');
+const sqlite = require('./src/database');
+const { updateDB } = require('./src/updateDB');
 
 //look for config file
 const configPath = findUp.sync(['.ggrc.json']);
@@ -46,10 +48,6 @@ if (args.sendgrid_api_key && args.sendgrid_api_key !== '') {
 if (args.sendgrid_cc && args.sendgrid_cc !== '') {
 	process.env.SENDGRID_CC = args.sendgrid_cc;
 }
-if (args.chromeExecutablePath && args.chromeExecutablePath !== '') {
-	process.env.CHROME_EXECUTABLE_PATH = args.chromeExecutablePath;
-}
-process.env.MINIMUM_PRICE = args.minimum_price || 0;
 
 //start index code
 (async () => {
@@ -59,9 +57,6 @@ process.env.MINIMUM_PRICE = args.minimum_price || 0;
 	};
 	if (args['remember_me']) {
 		config.userDataDir = './user_data';
-	}
-	if (process.env.CHROME_EXECUTABLE_PATH) {
-		config.executablePath = args['chromeExecutablePath'];
 	}
 	const browser = await puppeteer.launch(config);
 	const page = await browser.newPage();
@@ -81,8 +76,15 @@ process.env.MINIMUM_PRICE = args.minimum_price || 0;
 		args['remember_me']
 	);
 
+	await sqlite.open('./gg.db');
+
+	//initialize database and perform any upgrades
+	await updateDB();
+
 	//enter giveaways
 	await enterGiveaways(page, args.page || 1);
+
+	await sqlite.close();
 
 	await browser.close();
 })();
