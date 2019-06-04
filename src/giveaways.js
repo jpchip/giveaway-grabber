@@ -551,6 +551,43 @@ function sleep(millis) {
 }
 
 /**
+ * Attempts to enter a follow requirement type giveaway
+ * @param {Puppeteer.Page} page
+ * @param {boolean} [repeatAttempt]
+ * @returns {Promise<void>}
+ */
+async function enterFollowGiveaway(page, repeatAttempt) {
+	await checkForSignInButton(page);
+	await checkForSwitchAccount(page);
+	await checkForPassword(page);
+	await checkForCaptcha(page);
+	console.log('waiting for follow button...');
+
+	let foundFollowBtn = true;
+	try {
+		await page.waitForSelector('.follow-author-continue-button', {
+			timeout: 5000
+		});
+		await page.click('.follow-author-continue-button', { delay: 2000 });
+	} catch (error) {
+		console.log(
+			'could not find follow button, trying to click box instead'
+		);
+		foundFollowBtn = false;
+	}
+
+	if (foundFollowBtn) {
+		const resultFound = await handleGiveawayResult(page);
+		if (!resultFound && !repeatAttempt) {
+			console.log('lets try that again.');
+			await enterFollowGiveaway(page, true);
+		}
+	} else {
+		await enterNoEntryRequirementGiveaway(page, false);
+	}
+}
+
+/**
  * Loops through giveaways on given page, tries to enter them
  * @param {Puppeteer.Page} page
  * @param {number} pageNumber current giveaways page (eg. www.amazon.com/ga/giveaways?pageId=5)
