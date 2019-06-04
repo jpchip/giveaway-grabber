@@ -68,7 +68,8 @@ After running `gg init`, you'll have a `.ggrc.json` file in your directory. It w
   "sendgrid_cc": "",
   "blacklist": "floss,socks,ties",
   "chromeExecutablePath": "",
-  "minimum_price": 0
+  "minimum_price": 0,
+  "follow_giveaway": false
 }
 ```
 
