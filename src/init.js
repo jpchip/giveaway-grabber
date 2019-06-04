@@ -53,7 +53,7 @@ exports.handler = function(argv) {
 					message: 'Enter Follow type giveaways',
 					type: 'confirm',
 					default: false
-				},
+				}
 			])
 			.then(answers => {
 				answers.sendgrid_cc = '';

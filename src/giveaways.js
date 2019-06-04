@@ -485,10 +485,14 @@ async function enterFollowGiveaway(page, repeatAttempt) {
 
 	let foundFollowBtn = true;
 	try {
-		await page.waitForSelector('.follow-author-continue-button', { timeout: 5000 });
+		await page.waitForSelector('.follow-author-continue-button', {
+			timeout: 5000
+		});
 		await page.click('.follow-author-continue-button', { delay: 2000 });
 	} catch (error) {
-		console.log('could not find follow button, trying to click box instead');
+		console.log(
+			'could not find follow button, trying to click box instead'
+		);
 		foundFollowBtn = false;
 	}
 
