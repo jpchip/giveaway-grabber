@@ -44,9 +44,15 @@ exports.handler = function(argv) {
 				},
 				{
 					name: 'minimum_price',
-					message: 'Minimum item value (optional, default 0)',
+					message: 'Minimum item value (optional, default $0)',
 					type: 'input',
 					default: 0
+				},
+				{
+					name: 'follow_giveaway',
+					message: 'Enter Follow type giveaways',
+					type: 'confirm',
+					default: false
 				}
 			])
 			.then(answers => {
