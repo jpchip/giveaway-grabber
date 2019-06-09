@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 4.0.0 - 2019-06-08
 ### Added
 - Adds database to monitor entries (#74)[https://github.com/jpchip/giveaway-grabber/issues/74]
-
+### Security
+- Update version of Tesseract to resolve security vulnerabilities
 
 ## 3.5.0 - 2019-06-04
 ### Added
