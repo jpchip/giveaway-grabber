@@ -502,8 +502,8 @@ async function enterVideoGiveaway(page) {
 
 /**
  * Normalized way to establish a way to set a code for the page.
- * @param {String} code the code associated with the processing for the page.
- * @param {String} giveawayUrl the URL for the page.
+ * @param {string} code the code associated with the processing for the page.
+ * @param {string} giveawayUrl the URL for the page.
  * @returns {Promise<void>}
  */
 async function setProcessingCode(code, giveawayUrl) {

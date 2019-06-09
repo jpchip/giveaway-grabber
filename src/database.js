@@ -4,7 +4,7 @@ var db;
 
 /**
  * Creates or opens existing database.
- * @param path Database location
+ * @param {string} Database location
  * @returns {Promise<string>}
  */
 const open = path =>
@@ -17,9 +17,9 @@ const open = path =>
 
 /**
  * Used for insert, delete, or update queries.
- * @param query Query that should be executed.
- * @param params Array of paramaters of the query.
- * @returns {Promise<void>}
+ * @param {string} query that should be executed.
+ * @param {Array} params array of parameters of the query.
+ * @returns {Promise<boolean>}
  */
 const run = (query, params) =>
 	new Promise((resolve, reject) => {
@@ -31,7 +31,8 @@ const run = (query, params) =>
 
 /**
  * Read the first row from a Select query.
- * @param query The select statement that should be processed.
+ * @param {string} query The select statement that should be processed.
+ * @param {Array} params Array of parameters of the query.
  * @returns {Promise<void>}
  */
 const get = (query, params) =>
@@ -46,8 +47,8 @@ const get = (query, params) =>
 
 /**
  * Read all rows that match the query.
- * @param query Query that should be executed.
- * @param params Array of parameters to be used with supplied query.
+ * @param {string} query that should be executed.
+ * @param {array} [params] array of parameters to be used with supplied query.
  * @returns {Promise<void>}
  */
 const all = (query, params) =>
@@ -63,10 +64,15 @@ const all = (query, params) =>
 	});
 
 /**
+ * @callback actionCallback
+ * @param  {Array} row
+ */
+
+/**
  * Each row returned one by one
- * @param query Query that should be executed.
- * @param params Array of parameters to be used with supplied query.
- * @param action Call back function used to process results.
+ * @param {string} query Query that should be executed.
+ * @param {Array} params Array of parameters to be used with supplied query.
+ * @param {actionCallback} action Call back function used to process results.
  * @returns {Promise<void>}
  */
 const each = (query, params, action) =>
@@ -89,8 +95,7 @@ const each = (query, params, action) =>
 
 /**
  * Closes existing database.
- * @param path Database location
- * @returns {Promise<void>}
+ * @returns {Promise<boolean>}
  */
 const close = () =>
 	new Promise((resolve, reject) => {
