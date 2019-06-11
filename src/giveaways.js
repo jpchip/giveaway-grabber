@@ -7,6 +7,8 @@ const {
 } = require('./utils');
 const sgMail = require('@sendgrid/mail');
 var Tesseract = require('tesseract.js');
+const sqlite = require('./database');
+const urlTypes = require('./globals');
 
 /**
  * Checks if giveaway has already been entered
@@ -267,6 +269,26 @@ async function navigateToGiveaway(page, giveawayNumber) {
 }
 
 /**
+ * Retrieves the URL that will be navigated to.
+ * This should be unique.
+ * @param {Puppeteer.Page} page
+ * @param {number} giveawayNumber
+ * @returns {Promise<void>}
+ */
+async function getGiveawayURL(page, giveawayNumber) {
+	let linkValue = '';
+	try {
+		linkValue = await page.$eval(
+			`ul.listing-info-container > li.a-section.a-spacing-base.listing-item:nth-of-type(${giveawayNumber}) a.item-link`,
+			a => a.getAttribute('href')
+		);
+	} catch (error) {
+		//Not necessary to do error handling.
+	}
+	return linkValue;
+}
+
+/**
  * Checks for the result of the giveaway entry and log appropriately.
  * Returns true if result found, false if not.
  * @param {Puppeteer.Page} page
@@ -302,6 +324,8 @@ async function handleGiveawayResult(page) {
 			resultTextEl
 		);
 		console.log(resultText);
+		const pageUrl = new URL(page.url()).pathname;
+
 		if (resultText.includes('won')) {
 			const notification = {
 				title: 'giveaway-grabber',
@@ -328,6 +352,11 @@ async function handleGiveawayResult(page) {
 				console.log('sending email');
 				await sgMail.send(msg);
 			}
+			//Store that we won
+			setProcessingCode(urlTypes.WIN, pageUrl);
+		} else {
+			// Store that we lost
+			setProcessingCode(urlTypes.LOST, pageUrl);
 		}
 		return true;
 	} catch (error) {
@@ -376,6 +405,7 @@ async function enterNoEntryRequirementGiveaway(page, repeatAttempt) {
 		console.log('lets try that again.');
 		await enterNoEntryRequirementGiveaway(page, true);
 	}
+	return true;
 }
 
 /**
@@ -471,6 +501,56 @@ async function enterVideoGiveaway(page) {
 }
 
 /**
+ * Normalized way to establish a way to set a code for the page.
+ * @param {string} code the code associated with the processing for the page.
+ * @param {string} giveawayUrl the URL for the page.
+ * @returns {Promise<void>}
+ */
+async function setProcessingCode(code, giveawayUrl) {
+	if (giveawayUrl.length > 0) {
+		const responseInsert = await sqlite.run(
+			'INSERT INTO GG_DATA (sweepURL, processCode) VALUES (?, ?)',
+			[giveawayUrl, code]
+		);
+		if (!responseInsert) {
+			const responseUpdate = await sqlite.run(
+				'UPDATE GG_DATA SET process_code = (?), dateChecked = CURRENT_TIMESTAMP WHERE sweepURL = (?)',
+				[code, giveawayUrl]
+			);
+			if (!responseUpdate) {
+				console.log('Error saving entry status for ' + page.url());
+			}
+		}
+	}
+}
+
+/**
+ * Uses database to deterimine if the page should work like a blacklist page.
+ * At this time, it will return true when any value is associated with the page.
+ * Later, this can be expanded so certain pages can be reprocessed by allowing the code
+ * and then letting them work.  This would be usefull when certain new features that prevented
+ * an entry due to technical requirements.
+ * @param {String} giveawayUrl The URL that needs to be checked.
+ * @returns {boolean} true if the page should be skipped or false otherwise.
+ */
+async function isSkippable(giveawayUrl) {
+	var response = await sqlite.get(
+		'SELECT processCode FROM GG_DATA WHERE sweepURL = ?',
+		[giveawayUrl]
+	);
+	return typeof response !== 'undefined';
+}
+
+/**
+ * A function that sleeps for the specified number of milliseconds.
+ * @param {number} millis the milliseconds to sleep for.
+ * @returns {Promise<void>}
+ */
+function sleep(millis) {
+	return new Promise(resolve => setTimeout(resolve, millis));
+}
+
+/**
  * Attempts to enter a follow requirement type giveaway
  * @param {Puppeteer.Page} page
  * @param {boolean} [repeatAttempt]
@@ -548,6 +628,19 @@ async function enterGiveaways(page, pageNumber) {
 			return;
 		}
 
+		let giveawayUrl = await getGiveawayURL(page, i);
+		if (giveawayUrl.length > 0) {
+			giveawayUrl = giveawayUrl.substring(0, giveawayUrl.indexOf('?'));
+			const skippable = await isSkippable(giveawayUrl);
+			if (skippable) {
+				console.log(
+					'giveaway ' + i + ' has already been checked per DB record.'
+				);
+				await sleep(500);
+				return;
+			}
+		}
+
 		const noEntryRequired = await page.$x(
 			`//ul[@class="listing-info-container"]/li[${i}]//a/div[2]/div[2]/span[contains(text(), "No entry requirement")]`
 		);
@@ -582,6 +675,8 @@ async function enterGiveaways(page, pageNumber) {
 			let ended = await hasGiveawayEnded(page);
 			if (ended) {
 				console.log('giveaway ' + i + ' ended.');
+				//Store that the giveaway has ended.
+				setProcessingCode(urlTypes.ENDED, giveawayUrl);
 				await page.goBack();
 				return;
 			}
@@ -590,6 +685,8 @@ async function enterGiveaways(page, pageNumber) {
 			let isAlreadyEntered = await alreadyEntered(page);
 			if (isAlreadyEntered) {
 				console.log('giveaway ' + i + ' already entered.');
+				//Store that the giveaway was already entered.
+				setProcessingCode(urlTypes.ALREADY, giveawayUrl);
 				await page.goBack();
 				return;
 			} else {
@@ -624,6 +721,8 @@ async function enterGiveaways(page, pageNumber) {
 			await checkForPassword(page, pageNumber);
 		} else {
 			console.log('giveaway ' + i + ' cannot be entered.');
+			//Giveaway cannot be entered
+			setProcessingCode(urlTypes.CANNOT, giveawayUrl);
 		}
 	});
 

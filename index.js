@@ -5,6 +5,8 @@ const findUp = require('find-up');
 const fs = require('fs');
 const { enterGiveaways } = require('./src/giveaways');
 const signIn = require('./src/signIn');
+const sqlite = require('./src/database');
+const { updateDB } = require('./src/updateDB');
 
 //look for config file
 const configPath = findUp.sync(['.ggrc.json']);
@@ -82,8 +84,15 @@ process.env.FOLLOW_GIVEAWAY = args.follow_giveaway || false;
 		args['remember_me']
 	);
 
+	await sqlite.open('./gg.db');
+
+	//initialize database and perform any upgrades
+	await updateDB();
+
 	//enter giveaways
 	await enterGiveaways(page, args.page || 1);
+
+	await sqlite.close();
 
 	await browser.close();
 })();

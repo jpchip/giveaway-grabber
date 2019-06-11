@@ -9,8 +9,7 @@ and the script will always skip those entries.
 
 I wanted a reason to experiment with [Puppeteer](https://github.com/GoogleChrome/puppeteer), so here goes.
 
-Note: does not support entries that require following someone. Some video giveaways require
-using Chrome instead of Chromium, see **chromeExecutablePath** section below.
+Note: Some video giveaways require using Chrome instead of Chromium, see **chromeExecutablePath** section below.
 
 ## Installation
 
@@ -48,7 +47,7 @@ Other available commands:
 | `gg help` | Lists available commands and their descriptions.  |
 | `gg --version` | Outputs gg CLI version.  |
 | `gg --page=[number]` | Starts script on given page number (eg. `gg --page=34`) |
-| `gg --config==[string]` | Specify path to JSON config file (eg. `gg --config=/var/myconfig.json`) |
+| `gg --config=[string]` | Specify path to JSON config file (eg. `gg --config=/var/myconfig.json`) |
 
 If you would rather have the output write to a file then stdout, pipe it like:
 
@@ -142,6 +141,27 @@ the page will be logged like `Winning Entry URL: https://amazon.com/ga/p/335..`.
 If you set your `sendgrid_api_key` you'll also receive an email.
 
 ### Good luck!
+
+## Database
+
+Upon startup an SQLite3 database will be created in the application directory called gg.db.
+
+A trimmed URL of the sweepstakes entry is stored along with a code that establishes what happened when the sweepstakes entry was attempted to be processed.  The timestamp of when the sweepstakes code was received is stored.  As Giveaway-Grabber iterates through the different sweepstakes entries available it will check the database.  If Giveaway-Grabber finds that a code was registered for the URL then it will be skipped without actually going into the sweepstakes page.  This will cut down on all the unnecessary hops into and out of sweepstakes entries when Giveaway-Grabber is restarted.  There is a delay introduced so that pages aren't scrolled through in extremely rapid succession.
+
+The table below outlines the codes used and what they are indicating.
+
+| Code | Description |
+| ---- | ----------- |
+| W | The sweepstakes was won |
+| L | The sweepstakes was lost |
+| E | The sweepstakes has ended |
+| A | The sweepstakes was already entered |
+| C | The sweepstakes cannot be entered |
+
+Codes relate to not being able to be processed are not stored.  The expectation is that as Giveaway-Grabber matures these items may be corrected.  As such, blocking them due to a failure would force Giveaway-Grabber to skip them after the problem is rectified.
+
+**NOTE:**  If you delete your giveaway-grabber's install directory, you may want to grab the gg.db file first.  When a new Giveaway-Grabber is installed or cloned you can put the gg.db file into the install directory.  This way you will be able to retain all of the sweepstakes you have previously entered.  The gg.db file will rebuild on its own, but Giveaway-Grabber will need to go through each page to do so.
+
 
 ## Development
 
