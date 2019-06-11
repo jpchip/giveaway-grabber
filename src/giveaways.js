@@ -6,9 +6,11 @@ const {
 	checkMinPrice
 } = require('./utils');
 const sgMail = require('@sendgrid/mail');
-var Tesseract = require('tesseract.js');
+const Tesseract = require('tesseract.js');
 const sqlite = require('./database');
 const urlTypes = require('./globals');
+
+let currentGiveawayUrl = '';
 
 /**
  * Checks if giveaway has already been entered
@@ -353,10 +355,10 @@ async function handleGiveawayResult(page) {
 				await sgMail.send(msg);
 			}
 			//Store that we won
-			setProcessingCode(urlTypes.WIN, pageUrl);
+			await setProcessingCode(urlTypes.WIN, currentGiveawayUrl);
 		} else {
 			// Store that we lost
-			setProcessingCode(urlTypes.LOST, pageUrl);
+			await setProcessingCode(urlTypes.LOST, currentGiveawayUrl);
 		}
 		return true;
 	} catch (error) {
@@ -525,10 +527,10 @@ async function setProcessingCode(code, giveawayUrl) {
 }
 
 /**
- * Uses database to deterimine if the page should work like a blacklist page.
+ * Uses database to determine if the page should work like a blacklist page.
  * At this time, it will return true when any value is associated with the page.
  * Later, this can be expanded so certain pages can be reprocessed by allowing the code
- * and then letting them work.  This would be usefull when certain new features that prevented
+ * and then letting them work.  This would be useful when certain new features that prevented
  * an entry due to technical requirements.
  * @param {String} giveawayUrl The URL that needs to be checked.
  * @returns {boolean} true if the page should be skipped or false otherwise.
@@ -630,8 +632,8 @@ async function enterGiveaways(page, pageNumber) {
 
 		let giveawayUrl = await getGiveawayURL(page, i);
 		if (giveawayUrl.length > 0) {
-			giveawayUrl = giveawayUrl.substring(0, giveawayUrl.indexOf('?'));
-			const skippable = await isSkippable(giveawayUrl);
+			currentGiveawayUrl = giveawayUrl.substring(0, giveawayUrl.indexOf('?'));
+			const skippable = await isSkippable(currentGiveawayUrl);
 			if (skippable) {
 				console.log(
 					'giveaway ' + i + ' has already been checked per DB record.'
@@ -639,7 +641,10 @@ async function enterGiveaways(page, pageNumber) {
 				await sleep(500);
 				return;
 			}
+		} else {
+			currentGiveawayUrl = '';
 		}
+		console.log('giveaway ' + i + ' url: ' + currentGiveawayUrl);
 
 		const noEntryRequired = await page.$x(
 			`//ul[@class="listing-info-container"]/li[${i}]//a/div[2]/div[2]/span[contains(text(), "No entry requirement")]`
@@ -676,7 +681,7 @@ async function enterGiveaways(page, pageNumber) {
 			if (ended) {
 				console.log('giveaway ' + i + ' ended.');
 				//Store that the giveaway has ended.
-				setProcessingCode(urlTypes.ENDED, giveawayUrl);
+				await setProcessingCode(urlTypes.ENDED, currentGiveawayUrl);
 				await page.goBack();
 				return;
 			}
@@ -686,7 +691,7 @@ async function enterGiveaways(page, pageNumber) {
 			if (isAlreadyEntered) {
 				console.log('giveaway ' + i + ' already entered.');
 				//Store that the giveaway was already entered.
-				setProcessingCode(urlTypes.ALREADY, giveawayUrl);
+				await setProcessingCode(urlTypes.ALREADY, currentGiveawayUrl);
 				await page.goBack();
 				return;
 			} else {
@@ -697,10 +702,11 @@ async function enterGiveaways(page, pageNumber) {
 			let priceMatch = await hasCostGreaterThanMinimum(page);
 			if (!priceMatch) {
 				console.log(
-					`giveaway ${i} price smaller than ${
+					`giveaway ${i} price smaller than $${
 						process.env.MINIMUM_PRICE
-					}$.`
+					}.`
 				);
+				await setProcessingCode(urlTypes.MINIMUM_PRICE, currentGiveawayUrl);
 				await page.goBack();
 				return;
 			}
@@ -722,7 +728,7 @@ async function enterGiveaways(page, pageNumber) {
 		} else {
 			console.log('giveaway ' + i + ' cannot be entered.');
 			//Giveaway cannot be entered
-			setProcessingCode(urlTypes.CANNOT, giveawayUrl);
+			await setProcessingCode(urlTypes.CANNOT, currentGiveawayUrl);
 		}
 	});
 
