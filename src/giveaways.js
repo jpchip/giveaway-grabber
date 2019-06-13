@@ -587,6 +587,32 @@ async function enterFollowGiveaway(page, repeatAttempt) {
 	}
 }
 
+async function enterWinnerPromoCardGiveaway(page, repeatAttempt) {
+	await checkForSignInButton(page);
+	await checkForSwitchAccount(page);
+	await checkForPassword(page);
+	await checkForCaptcha(page);
+	// Waiting for box
+	let selector = null;
+	try {
+		await page.waitForSelector('.box-click-area', { timeout: 2000 });
+		selector = '.box-click-area';
+	} catch (error) {
+		//could not find box-click-area
+	}
+	if (!selector) {
+		try {
+			await page.waitForSelector('#box_click_target', { timeout: 2000 });
+			selector = '#box_click_target';
+		} catch (error) {
+			//could not find box_click_target
+		}
+	}
+	selector
+		? await enterNoEntryRequirementGiveaway(page, true)
+		: await enterVideoGiveaway(page);
+}
+
 /**
  * Loops through giveaways on given page, tries to enter them
  * @param {Puppeteer.Page} page
@@ -650,6 +676,9 @@ async function enterGiveaways(page, pageNumber) {
 		const followRequired = await page.$x(
 			`//ul[@class="listing-info-container"]/li[${i}]//a/div[2]/div[2]/span[contains(text(), "Follow")]`
 		);
+		const winnerPromoCard = await page.$x(
+			`//ul[@class="listing-info-container"]/li[${i}]//div[@class="winner-promo-card"]//a`
+		);
 
 		if (
 			!(process.env.FOLLOW_GIVEAWAY == 'true') &&
@@ -662,7 +691,8 @@ async function enterGiveaways(page, pageNumber) {
 		if (
 			noEntryRequired.length > 0 ||
 			videoRequired.length > 0 ||
-			followRequired.length > 0
+			followRequired.length > 0 ||
+			winnerPromoCard.length > 0
 		) {
 			try {
 				await navigateToGiveaway(page, i);
@@ -712,6 +742,8 @@ async function enterGiveaways(page, pageNumber) {
 				await enterVideoGiveaway(page);
 			} else if (followRequired.length > 0) {
 				await enterFollowGiveaway(page);
+			} else if (winnerPromoCard.length > 0) {
+				await enterWinnerPromoCardGiveaway(page);
 			}
 
 			//go back
