@@ -592,7 +592,7 @@ async function enterWinnerPromoCardGiveaway(page, repeatAttempt) {
 	await checkForSwitchAccount(page);
 	await checkForPassword(page);
 	await checkForCaptcha(page);
-	// Waiting for box
+
 	let selector = null;
 	try {
 		await page.waitForSelector('.box-click-area', { timeout: 2000 });
@@ -608,9 +608,12 @@ async function enterWinnerPromoCardGiveaway(page, repeatAttempt) {
 			//could not find box_click_target
 		}
 	}
-	selector
-		? await enterNoEntryRequirementGiveaway(page, true)
-		: await enterVideoGiveaway(page);
+
+	if (selector) {
+		await enterNoEntryRequirementGiveaway(page, true);
+	} else {
+		await enterVideoGiveaway(page);
+	}
 }
 
 /**
