@@ -68,7 +68,8 @@ After running `gg init`, you'll have a `.ggrc.json` file in your directory. It w
   "blacklist": "floss,socks,ties",
   "chromeExecutablePath": "",
   "minimum_price": 0,
-  "follow_giveaway": false
+  "follow_giveaway": false,
+  "unfollow_updates": false
 }
 ```
 
@@ -84,6 +85,7 @@ After running `gg init`, you'll have a `.ggrc.json` file in your directory. It w
 | chromeExecutablePath | Path to your own install of Chrome. Optional |
 | minimum_price | Skip the giveaways with items with price lower than the minimum price. Optional |
 | follow_giveaway | Enter the follow type giveaways. Defaults to false |
+| unfollow_updates | Unfollow the Amazon updates after having followed the giveaways. Defaults to false |
 
 ### Two factor Authentication (2FA)
 
@@ -126,6 +128,11 @@ but it will only enter video giveaways with YouTube videos.
 
 You can decide to enter the giveaways that require you to Follow the brand. By default this is set to false
 and they will not be entered. It is possible that once followed, a brand will end up sending lots of promo emails.
+
+### Unfollow Updates
+
+After entering the follow type giveaways you might experience more promotional emails from Amazon. Setting this
+option to true will automatically unfollow all updates.
 
 ## CAPTCHAs
 

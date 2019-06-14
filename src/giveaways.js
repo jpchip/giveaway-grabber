@@ -588,6 +588,42 @@ async function enterFollowGiveaway(page, repeatAttempt) {
 }
 
 /**
+ * Loops through followed items on profile page, tries to unfollow them
+ * @param {Puppeteer.Page} page
+ * @returns {Promise<void>}
+ */
+async function unfollowGiveaways(page) {
+	const navigationPromise = page.waitForNavigation();
+	await page.goto(
+		'https://www.amazon.com/gp/profile/follows?ref_=cm_flw_time'
+	);
+	await navigationPromise;
+	try {
+		await page.waitForSelector('.pr-fb-following');
+		let followButtonLength = 0;
+		let relFollowButtonLength = (await page.$$('.pr-follows-row')).length;
+		async function loopButtons(initial, end) {
+			for (let i = initial; i < end; i++) {
+				const followButton = `.pr-follows-row:nth-child(${i}) > .a-row > .a-column > .amazon-follow > .pr-fb-container > .pr-fb > .pr-fb-inner > .pr-fb-button`;
+				try {
+					await page.click(followButton, { delay: 500 });
+				} catch (error) {
+					console.log('could not find follow button');
+				}
+			}
+			followButtonLength = relFollowButtonLength;
+			relFollowButtonLength = (await page.$$('.pr-follows-row')).length;
+		}
+		while (relFollowButtonLength > followButtonLength) {
+			await loopButtons(followButtonLength, relFollowButtonLength);
+		}
+	} catch (error) {
+		console.log('Could not unfollow');
+	}
+	await page.goBack();
+}
+
+/**
  * Loops through giveaways on given page, tries to enter them
  * @param {Puppeteer.Page} page
  * @param {number} pageNumber current giveaways page (eg. www.amazon.com/ga/giveaways?pageId=5)
@@ -712,6 +748,9 @@ async function enterGiveaways(page, pageNumber) {
 				await enterVideoGiveaway(page);
 			} else if (followRequired.length > 0) {
 				await enterFollowGiveaway(page);
+				if (process.env.UNFOLLOW_UPDATES) {
+					await unfollowGiveaways(page);
+				}
 			}
 
 			//go back
