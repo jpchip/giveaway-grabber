@@ -155,8 +155,10 @@ The table below outlines the codes used and what they are indicating.
 | W | The sweepstakes was won |
 | L | The sweepstakes was lost |
 | E | The sweepstakes has ended |
+| M | The sweepstakes was below minimum price |
 | A | The sweepstakes was already entered |
 | C | The sweepstakes cannot be entered |
+
 
 Codes relate to not being able to be processed are not stored.  The expectation is that as Giveaway-Grabber matures these items may be corrected.  As such, blocking them due to a failure would force Giveaway-Grabber to skip them after the problem is rectified.
 

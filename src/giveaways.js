@@ -661,7 +661,10 @@ async function enterGiveaways(page, pageNumber) {
 
 		let giveawayUrl = await getGiveawayURL(page, i);
 		if (giveawayUrl.length > 0) {
-			currentGiveawayUrl = giveawayUrl.substring(0, giveawayUrl.indexOf('?'));
+			currentGiveawayUrl = giveawayUrl.substring(
+				0,
+				giveawayUrl.indexOf('?')
+			);
 			const skippable = await isSkippable(currentGiveawayUrl);
 			if (skippable) {
 				console.log(
@@ -739,7 +742,10 @@ async function enterGiveaways(page, pageNumber) {
 						process.env.MINIMUM_PRICE
 					}.`
 				);
-				await setProcessingCode(urlTypes.MINIMUM_PRICE, currentGiveawayUrl);
+				await setProcessingCode(
+					urlTypes.MINIMUM_PRICE,
+					currentGiveawayUrl
+				);
 				await page.goBack();
 				return;
 			}
