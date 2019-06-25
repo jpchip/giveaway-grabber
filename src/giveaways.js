@@ -598,17 +598,23 @@ async function unfollowGiveaways(page) {
 		'https://www.amazon.com/gp/profile/follows?ref_=cm_flw_time'
 	);
 	await navigationPromise;
+	await checkForSignInButton(page);
+	await checkForSwitchAccount(page);
+	await checkForPassword(page);
+	await checkForCaptcha(page);
 	try {
-		await page.waitForSelector('.pr-fb-following');
+		await page.waitForSelector('.pr-fb-following', { timeout: 5000 });
 		let followButtonLength = 0;
 		let relFollowButtonLength = (await page.$$('.pr-follows-row')).length;
+		console.log('relFollowButtonLength: ', relFollowButtonLength);
 		async function loopButtons(initial, end) {
-			for (let i = initial; i < end; i++) {
+			for (let index = initial; index < end; index++) {
+				let i = index + 1;
 				const followButton = `.pr-follows-row:nth-child(${i}) > .a-row > .a-column > .amazon-follow > .pr-fb-container > .pr-fb > .pr-fb-inner > .pr-fb-button`;
 				try {
 					await page.click(followButton, { delay: 500 });
 				} catch (error) {
-					console.log('could not find follow button');
+					console.log('Could not find follow button');
 				}
 			}
 			followButtonLength = relFollowButtonLength;
@@ -784,5 +790,6 @@ async function enterGiveaways(page, pageNumber) {
 }
 
 module.exports = {
-	enterGiveaways
+	enterGiveaways,
+	unfollowGiveaways
 };

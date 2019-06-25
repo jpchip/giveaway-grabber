@@ -47,6 +47,7 @@ Other available commands:
 | `gg help` | Lists available commands and their descriptions.  |
 | `gg --version` | Outputs gg CLI version.  |
 | `gg --page=[number]` | Starts script on given page number (eg. `gg --page=34`) |
+| `gg --unfollow` | Starts the unfollow giveaway script to get rid of marketing emails (also works with `gg unfollow`) |
 | `gg --config=[string]` | Specify path to JSON config file (eg. `gg --config=/var/myconfig.json`) |
 
 If you would rather have the output write to a file then stdout, pipe it like:
@@ -132,7 +133,9 @@ and they will not be entered. It is possible that once followed, a brand will en
 ### Unfollow Updates
 
 After entering the follow type giveaways you might experience more promotional emails from Amazon. Setting this
-option to true will automatically unfollow all updates.
+option to `true` will automatically unfollow all updates right after the giveaways are entered.
+Alternatively, you can use the following commands to run a script to unfollow all promotional emails separately:
+`gg --unfollow` or `gg unfollow`
 
 ## CAPTCHAs
 
