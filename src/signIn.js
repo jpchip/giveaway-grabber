@@ -1,3 +1,5 @@
+const Tesseract = require('tesseract.js');
+
 /**
  * Goes to Amazon Sign In page and tries to sign in with given credentials
  * @param {Puppeteer.Page} page
@@ -55,6 +57,8 @@ module.exports = async function(
 	await page.click('#signInSubmit');
 	await signInPromise;
 
+	await checkForCaptcha(page);
+
 	if (twoFactorAuth) {
 		try {
 			await page.waitForSelector('#auth-mfa-otpcode', {
@@ -74,3 +78,38 @@ module.exports = async function(
 		}
 	}
 };
+
+/**
+ * Check if there's a captcha
+ * @param {Puppeteer.Page} page
+ * @returns {Promise<void>}
+ */
+async function checkForCaptcha(page) {
+	console.log('checkForCaptcha');
+	try {
+		await page.waitForSelector('#auth-captcha-image', { timeout: 500 });
+		const url = await page.$eval(
+			'img[src*="opfcaptcha-prod"]',
+			el => el.src
+		);
+		console.log(url);
+		const tessValue = await Tesseract.recognize(url).then(function(result) {
+			return result;
+		});
+		console.log('OCR Value:  ' + tessValue.text.trim().replace(' ', ''));
+		await page.waitForSelector('#auth-captcha-guess');
+		await page.click('#auth-captcha-guess');
+		await page.type(
+			'#auth-captcha-guess',
+			tessValue.text.trim().replace(' ', '')
+		);
+		await page.click('#auth-captcha-guess');
+		await page.click('.a-button-input');
+		await page.waitFor(() => !document.querySelector('#auth-captcha-image'), {
+			timeout: 0
+		});
+	} catch (error) {
+		//nothing to do here...
+		console.log(error);
+	}
+}
