@@ -104,8 +104,7 @@ async function checkForSignInButton(page) {
 
 /**
  * Check if there's a captcha,
- * and if so, wait until user enters it.
- * @todo email user so they know it stopped?
+ * and if so, tries to guess it.
  * @param {Puppeteer.Page} page
  * @returns {Promise<void>}
  */

@@ -1,5 +1,5 @@
 const Tesseract = require('tesseract.js');
-const {sendSystemNotification} = require('./utils');
+const { sendSystemNotification } = require('./utils');
 
 /**
  * Goes to Amazon Sign In page and tries to sign in with given credentials
@@ -81,8 +81,11 @@ module.exports = async function(
 };
 
 /**
- * Check if there's a captcha
+ * Check if there's a captcha, tries to guess it.
+ * Then re-enters password and waits for user to verify captcha guess
+ * and click the sign in button themselves.
  * @param {Puppeteer.Page} page
+ * @param {string} password
  * @returns {Promise<void>}
  */
 async function checkForCaptcha(page, password) {
@@ -104,8 +107,6 @@ async function checkForCaptcha(page, password) {
 			'#auth-captcha-guess',
 			tessValue.text.trim().replace(' ', '')
 		);
-		//await page.click('#auth-captcha-guess');
-		//await page.click('.a-button-input');
 
 		//enter password again...
 		await page.waitForSelector('#ap_password');
@@ -120,11 +121,14 @@ async function checkForCaptcha(page, password) {
 		};
 		sendSystemNotification(notification);
 
-		await page.waitFor(() => !document.querySelector('#auth-captcha-image'), {
-			timeout: 0
-		});
+		await page.waitFor(
+			() => !document.querySelector('#auth-captcha-image'),
+			{
+				timeout: 0
+			}
+		);
 	} catch (error) {
 		//nothing to do here...
-		console.log(error);
+		//console.log(error);
 	}
 }
