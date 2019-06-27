@@ -8,5 +8,6 @@
   "blacklist": "socks,kindle edition,floss",
   "chromeExecutablePath": "/path/to/Chrome",
   "minimum_price": 0,
-  "follow_giveaway": false
+  "follow_giveaway": false,
+  "unfollow_updates": false
 }

@@ -50,7 +50,13 @@ exports.handler = function(argv) {
 				},
 				{
 					name: 'follow_giveaway',
-					message: 'Enter Follow type giveaways',
+					message: 'Enter Follow type giveaways (optional)',
+					type: 'confirm',
+					default: false
+				},
+				{
+					name: 'unfollow_updates',
+					message: 'Unfollow updates from follow type giveaways',
 					type: 'confirm',
 					default: false
 				}

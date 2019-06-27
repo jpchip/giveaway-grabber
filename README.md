@@ -47,6 +47,7 @@ Other available commands:
 | `gg help` | Lists available commands and their descriptions.  |
 | `gg --version` | Outputs gg CLI version.  |
 | `gg --page=[number]` | Starts script on given page number (eg. `gg --page=34`) |
+| `gg --unfollow` | Starts the unfollow giveaway script to get rid of marketing emails (also works with `gg unfollow`) |
 | `gg --config=[string]` | Specify path to JSON config file (eg. `gg --config=/var/myconfig.json`) |
 
 If you would rather have the output write to a file then stdout, pipe it like:
@@ -68,7 +69,8 @@ After running `gg init`, you'll have a `.ggrc.json` file in your directory. It w
   "blacklist": "floss,socks,ties",
   "chromeExecutablePath": "",
   "minimum_price": 0,
-  "follow_giveaway": false
+  "follow_giveaway": false,
+  "unfollow_updates": false
 }
 ```
 
@@ -84,6 +86,7 @@ After running `gg init`, you'll have a `.ggrc.json` file in your directory. It w
 | chromeExecutablePath | Path to your own install of Chrome. Optional |
 | minimum_price | Skip the giveaways with items with price lower than the minimum price. Optional |
 | follow_giveaway | Enter the follow type giveaways. Defaults to false |
+| unfollow_updates | Unfollow the Amazon updates after having followed the giveaways. Defaults to false |
 
 ### Two factor Authentication (2FA)
 
@@ -126,6 +129,13 @@ but it will only enter video giveaways with YouTube videos.
 
 You can decide to enter the giveaways that require you to Follow the brand. By default this is set to false
 and they will not be entered. It is possible that once followed, a brand will end up sending lots of promo emails.
+
+### Unfollow Updates
+
+After entering the follow type giveaways you might experience more promotional emails from Amazon. Setting this
+option to `true` will automatically unfollow all updates right after the giveaways are entered.
+Alternatively, you can use the following commands to run a script to unfollow all promotional emails separately:
+`gg --unfollow` or `gg unfollow`
 
 ## CAPTCHAs
 

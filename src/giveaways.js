@@ -618,6 +618,48 @@ async function enterWinnerPromoCardGiveaway(page, repeatAttempt) {
 }
 
 /**
+ * Loops through followed items on profile page, tries to unfollow them
+ * @param {Puppeteer.Page} page
+ * @returns {Promise<void>}
+ */
+async function unfollowGiveaways(page) {
+	const navigationPromise = page.waitForNavigation();
+	await page.goto(
+		'https://www.amazon.com/gp/profile/follows?ref_=cm_flw_time'
+	);
+	await navigationPromise;
+	await checkForSignInButton(page);
+	await checkForSwitchAccount(page);
+	await checkForPassword(page);
+	await checkForCaptcha(page);
+	try {
+		await page.waitForSelector('.pr-fb-following', { timeout: 5000 });
+		let followButtonLength = 0;
+		let relFollowButtonLength = (await page.$$('.pr-follows-row')).length;
+		console.log('relFollowButtonLength: ', relFollowButtonLength);
+		async function loopButtons(initial, end) {
+			for (let index = initial; index < end; index++) {
+				let i = index + 1;
+				const followButton = `.pr-follows-row:nth-child(${i}) > .a-row > .a-column > .amazon-follow > .pr-fb-container > .pr-fb > .pr-fb-inner > .pr-fb-button`;
+				try {
+					await page.click(followButton, { delay: 500 });
+				} catch (error) {
+					console.log('Could not find follow button');
+				}
+			}
+			followButtonLength = relFollowButtonLength;
+			relFollowButtonLength = (await page.$$('.pr-follows-row')).length;
+		}
+		while (relFollowButtonLength > followButtonLength) {
+			await loopButtons(followButtonLength, relFollowButtonLength);
+		}
+	} catch (error) {
+		console.log('Could not unfollow');
+	}
+	await page.goBack();
+}
+
+/**
  * Loops through giveaways on given page, tries to enter them
  * @param {Puppeteer.Page} page
  * @param {number} pageNumber current giveaways page (eg. www.amazon.com/ga/giveaways?pageId=5)
@@ -756,7 +798,10 @@ async function enterGiveaways(page, pageNumber) {
 				await enterVideoGiveaway(page);
 			} else if (followRequired.length > 0) {
 				await enterFollowGiveaway(page);
-			} else if (winnerPromoCard.length > 0) {
+				if (process.env.UNFOLLOW_UPDATES) {
+					await unfollowGiveaways(page);
+				}
+      } else if (winnerPromoCard.length > 0) {
 				await enterWinnerPromoCardGiveaway(page);
 			}
 
@@ -791,5 +836,6 @@ async function enterGiveaways(page, pageNumber) {
 }
 
 module.exports = {
-	enterGiveaways
+	enterGiveaways,
+	unfollowGiveaways
 };

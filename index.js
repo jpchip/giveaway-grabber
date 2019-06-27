@@ -3,7 +3,7 @@
 const puppeteer = require('puppeteer');
 const findUp = require('find-up');
 const fs = require('fs');
-const { enterGiveaways } = require('./src/giveaways');
+const { enterGiveaways, unfollowGiveaways } = require('./src/giveaways');
 const signIn = require('./src/signIn');
 const sqlite = require('./src/database');
 const { updateDB } = require('./src/updateDB');
@@ -18,6 +18,8 @@ const args = require('yargs')
 	.command(require('./src/init'))
 	.describe('page', 'page to start script on')
 	.number('page')
+	.describe('unfollow', 'unfollow giveaways script')
+	.boolean('unfollow')
 	.describe('config', 'path to JSON config file')
 	.string('config')
 	.config(config)
@@ -53,6 +55,8 @@ if (args.chromeExecutablePath && args.chromeExecutablePath !== '') {
 }
 process.env.MINIMUM_PRICE = args.minimum_price || 0;
 process.env.FOLLOW_GIVEAWAY = args.follow_giveaway || false;
+process.env.UNFOLLOW_UPDATES =
+	args.unfollow || args._.includes('unfollow') || false;
 
 //start index code
 (async () => {
@@ -89,8 +93,13 @@ process.env.FOLLOW_GIVEAWAY = args.follow_giveaway || false;
 	//initialize database and perform any upgrades
 	await updateDB();
 
+	if (process.env.UNFOLLOW_UPDATES == 'true') {
+		await unfollowGiveaways(page);
+	}
 	//enter giveaways
-	await enterGiveaways(page, args.page || 1);
+	else {
+		await enterGiveaways(page, args.page || 1);
+	}
 
 	await sqlite.close();
 
