@@ -801,7 +801,7 @@ async function enterGiveaways(page, pageNumber) {
 				if (process.env.UNFOLLOW_UPDATES) {
 					await unfollowGiveaways(page);
 				}
-      } else if (winnerPromoCard.length > 0) {
+			} else if (winnerPromoCard.length > 0) {
 				await enterWinnerPromoCardGiveaway(page);
 			}
 
