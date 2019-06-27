@@ -1,3 +1,6 @@
+const Tesseract = require('tesseract.js');
+const { sendSystemNotification } = require('./utils');
+
 /**
  * Goes to Amazon Sign In page and tries to sign in with given credentials
  * @param {Puppeteer.Page} page
@@ -55,6 +58,8 @@ module.exports = async function(
 	await page.click('#signInSubmit');
 	await signInPromise;
 
+	await checkForCaptcha(page, password);
+
 	if (twoFactorAuth) {
 		try {
 			await page.waitForSelector('#auth-mfa-otpcode', {
@@ -74,3 +79,56 @@ module.exports = async function(
 		}
 	}
 };
+
+/**
+ * Check if there's a captcha, tries to guess it.
+ * Then re-enters password and waits for user to verify captcha guess
+ * and click the sign in button themselves.
+ * @param {Puppeteer.Page} page
+ * @param {string} password
+ * @returns {Promise<void>}
+ */
+async function checkForCaptcha(page, password) {
+	console.log('checkForCaptcha');
+	try {
+		await page.waitForSelector('#auth-captcha-image', { timeout: 500 });
+		const url = await page.$eval(
+			'img[src*="opfcaptcha-prod"]',
+			el => el.src
+		);
+
+		const tessValue = await Tesseract.recognize(url).then(function(result) {
+			return result;
+		});
+		console.log('OCR Value:  ' + tessValue.text.trim().replace(' ', ''));
+		await page.waitForSelector('#auth-captcha-guess');
+		await page.click('#auth-captcha-guess');
+		await page.type(
+			'#auth-captcha-guess',
+			tessValue.text.trim().replace(' ', '')
+		);
+
+		//enter password again...
+		await page.waitForSelector('#ap_password');
+		await page.click('#ap_password');
+		await page.type('#ap_password', password);
+
+		const message = 'ENTER CAPTCHA!';
+		console.log(message);
+		const notification = {
+			title: 'giveaway-grabber',
+			message: message
+		};
+		sendSystemNotification(notification);
+
+		await page.waitFor(
+			() => !document.querySelector('#auth-captcha-image'),
+			{
+				timeout: 0
+			}
+		);
+	} catch (error) {
+		//nothing to do here...
+		//console.log(error);
+	}
+}
