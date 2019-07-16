@@ -58,8 +58,8 @@
     "inquirer": "~6.5.0",
     "node-notifier": "~5.4.0",
     "puppeteer": "~1.18.1",
-    "tesseract.js": "~1.0.19",
     "sqlite3": "~4.0.9",
+    "tesseract.js": "~1.0.19",
     "yargs": "~13.3.0"
   },
   "devDependencies": {

@@ -40,7 +40,7 @@ module.exports = async function(
 
 	await page.waitForSelector('#ap_password');
 	await page.click('#ap_password');
-	await page.type('#ap_password', password);
+	await page.type('#ap_password', String(password));
 
 	if (rememberMe) {
 		try {
@@ -111,7 +111,7 @@ async function checkForCaptcha(page, password) {
 		//enter password again...
 		await page.waitForSelector('#ap_password');
 		await page.click('#ap_password');
-		await page.type('#ap_password', password);
+		await page.type('#ap_password', String(password));
 
 		const message = 'ENTER CAPTCHA!';
 		console.log(message);
