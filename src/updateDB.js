@@ -17,7 +17,7 @@ async function updateDB() {
 
 	response = await sqlite.get('SELECT vers FROM version');
 	if (typeof response === 'undefined') {
-		let pRet = await sqlite.run('INSERT INTO version (vers) VALUES (0)');
+		const pRet = await sqlite.run('INSERT INTO version (vers) VALUES (0)');
 		if (pRet) {
 			console.log('Version initialized to 0');
 			version = 0;

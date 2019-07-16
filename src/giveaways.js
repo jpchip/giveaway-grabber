@@ -115,7 +115,7 @@ async function checkForCaptcha(page) {
 		console.log(message);
 		const notification = {
 			title: 'giveaway-grabber',
-			message: message
+			message
 		};
 		sendSystemNotification(notification);
 		await page.waitForSelector('.a-dynamic-image', { timeout: 1000 });
@@ -234,8 +234,7 @@ async function hasGiveawayEnded(page) {
  */
 async function hasCostGreaterThanMinimum(page) {
 	try {
-		let resultTextEl;
-		resultTextEl = await page.waitForSelector('.a-price-whole', {
+		const resultTextEl = await page.waitForSelector('.a-price-whole', {
 			timeout: 500
 		});
 		const resultText = await page.evaluate(
@@ -325,7 +324,6 @@ async function handleGiveawayResult(page) {
 			resultTextEl
 		);
 		console.log(resultText);
-		const pageUrl = new URL(page.url()).pathname;
 
 		if (resultText.includes('won')) {
 			const notification = {
@@ -519,7 +517,7 @@ async function setProcessingCode(code, giveawayUrl) {
 				[code, giveawayUrl]
 			);
 			if (!responseUpdate) {
-				console.log('Error saving entry status for ' + page.url());
+				console.log('Error saving entry status for ' + giveawayUrl);
 			}
 		}
 	}
@@ -535,7 +533,7 @@ async function setProcessingCode(code, giveawayUrl) {
  * @returns {boolean} true if the page should be skipped or false otherwise.
  */
 async function isSkippable(giveawayUrl) {
-	var response = await sqlite.get(
+	const response = await sqlite.get(
 		'SELECT processCode FROM GG_DATA WHERE sweepURL = ?',
 		[giveawayUrl]
 	);
@@ -588,7 +586,13 @@ async function enterFollowGiveaway(page, repeatAttempt) {
 	}
 }
 
-async function enterWinnerPromoCardGiveaway(page, repeatAttempt) {
+/**
+ * Attempts to enter a promo card giveaway, which could be a video
+ * or a no entry required type
+ * @param {Puppeteer.Page} page
+ * @returns {Promise<void>}
+ */
+async function enterWinnerPromoCardGiveaway(page) {
 	await checkForSignInButton(page);
 	await checkForSwitchAccount(page);
 	await checkForPassword(page);
@@ -634,25 +638,18 @@ async function unfollowGiveaways(page) {
 	await checkForCaptcha(page);
 	try {
 		await page.waitForSelector('.pr-fb-following', { timeout: 5000 });
-		let followButtonLength = 0;
-		let relFollowButtonLength = (await page.$$('.pr-follows-row')).length;
+		const relFollowButtonLength = (await page.$$('.pr-follows-row')).length;
 		console.log('relFollowButtonLength: ', relFollowButtonLength);
-		async function loopButtons(initial, end) {
-			for (let index = initial; index < end; index++) {
-				let i = index + 1;
-				const followButton = `.pr-follows-row:nth-child(${i}) > .a-row > .a-column > .amazon-follow > .pr-fb-container > .pr-fb > .pr-fb-inner > .pr-fb-button`;
-				try {
-					await page.click(followButton, { delay: 500 });
-				} catch (error) {
-					console.log('Could not find follow button');
-				}
+		const followButtonIndexes = new Array(relFollowButtonLength);
+		await asyncForEach(followButtonIndexes, async (val, index) => {
+			const i = index + 1;
+			const followButton = `.pr-follows-row:nth-child(${i}) > .a-row > .a-column > .amazon-follow > .pr-fb-container > .pr-fb > .pr-fb-inner > .pr-fb-button`;
+			try {
+				await page.click(followButton, { delay: 500 });
+			} catch (error) {
+				console.log('Could not find follow button');
 			}
-			followButtonLength = relFollowButtonLength;
-			relFollowButtonLength = (await page.$$('.pr-follows-row')).length;
-		}
-		while (relFollowButtonLength > followButtonLength) {
-			await loopButtons(followButtonLength, relFollowButtonLength);
-		}
+		});
 	} catch (error) {
 		console.log('Could not unfollow');
 	}
@@ -670,7 +667,7 @@ async function enterGiveaways(page, pageNumber) {
 	console.log('Page ' + pageNumber + ' Start:');
 	const giveawayKeys = new Array(24);
 	await asyncForEach(giveawayKeys, async (val, index) => {
-		let i = index + 1;
+		const i = index + 1;
 		let giveawayExists = true;
 		try {
 			await page.waitForSelector(
@@ -700,7 +697,7 @@ async function enterGiveaways(page, pageNumber) {
 			return;
 		}
 
-		let giveawayUrl = await getGiveawayURL(page, i);
+		const giveawayUrl = await getGiveawayURL(page, i);
 		if (giveawayUrl.length > 0) {
 			currentGiveawayUrl = giveawayUrl.substring(
 				0,
@@ -733,7 +730,7 @@ async function enterGiveaways(page, pageNumber) {
 		);
 
 		if (
-			!(process.env.FOLLOW_GIVEAWAY == 'true') &&
+			!(process.env.FOLLOW_GIVEAWAY === 'true') &&
 			followRequired.length > 0
 		) {
 			console.log('giveaway ' + i + ' is of follow type. Next!');
@@ -754,7 +751,7 @@ async function enterGiveaways(page, pageNumber) {
 			}
 
 			//check if ended
-			let ended = await hasGiveawayEnded(page);
+			const ended = await hasGiveawayEnded(page);
 			if (ended) {
 				console.log('giveaway ' + i + ' ended.');
 				//Store that the giveaway has ended.
@@ -764,24 +761,21 @@ async function enterGiveaways(page, pageNumber) {
 			}
 
 			//check if already entered
-			let isAlreadyEntered = await alreadyEntered(page);
+			const isAlreadyEntered = await alreadyEntered(page);
 			if (isAlreadyEntered) {
 				console.log('giveaway ' + i + ' already entered.');
 				//Store that the giveaway was already entered.
 				await setProcessingCode(urlTypes.ALREADY, currentGiveawayUrl);
 				await page.goBack();
 				return;
-			} else {
-				console.log('giveaway ' + i + ' is ready!');
 			}
+			console.log('giveaway ' + i + ' is ready!');
 
 			//check if price is greater than minimum
-			let priceMatch = await hasCostGreaterThanMinimum(page);
+			const priceMatch = await hasCostGreaterThanMinimum(page);
 			if (!priceMatch) {
 				console.log(
-					`giveaway ${i} price smaller than $${
-						process.env.MINIMUM_PRICE
-					}.`
+					`giveaway ${i} price smaller than $${process.env.MINIMUM_PRICE}.`
 				);
 				await setProcessingCode(
 					urlTypes.MINIMUM_PRICE,

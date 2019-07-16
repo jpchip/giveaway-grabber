@@ -1,6 +1,6 @@
 //Code borrowed from example found at https://www.scriptol.com/sql/sqlite-async-await.php
 const sqlite3 = require('sqlite3').verbose();
-var db;
+let db;
 
 /**
  * Creates or opens existing database.
@@ -8,8 +8,8 @@ var db;
  * @returns {Promise<string>}
  */
 const open = path =>
-	new Promise(resolve => {
-		this.db = new sqlite3.Database(path, err => {
+	new Promise((resolve, reject) => {
+		db = new sqlite3.Database(path, err => {
 			if (err) reject('Open error: ' + err.message);
 			else resolve(path + ' opened');
 		});
@@ -23,7 +23,7 @@ const open = path =>
  */
 const run = (query, params) =>
 	new Promise((resolve, reject) => {
-		this.db.run(query, params, err => {
+		db.run(query, params, err => {
 			if (err) reject(err.message);
 			else resolve(true);
 		});
@@ -37,7 +37,7 @@ const run = (query, params) =>
  */
 const get = (query, params) =>
 	new Promise((resolve, reject) => {
-		this.db.get(query, params, (err, row) => {
+		db.get(query, params, (err, row) => {
 			if (err) reject('Read error: ' + err.message);
 			else {
 				resolve(row);
@@ -53,9 +53,9 @@ const get = (query, params) =>
  */
 const all = (query, params) =>
 	new Promise((resolve, reject) => {
-		if (params == undefined) params = [];
+		if (params === undefined) params = [];
 
-		this.db.all(query, params, (err, rows) => {
+		db.all(query, params, (err, rows) => {
 			if (err) reject('Read error: ' + err.message);
 			else {
 				resolve(rows);
@@ -77,17 +77,14 @@ const all = (query, params) =>
  */
 const each = (query, params, action) =>
 	new Promise((resolve, reject) => {
-		var db = this.db;
 		db.serialize(() => {
 			db.each(query, params, (err, row) => {
 				if (err) reject('Read error: ' + err.message);
-				else {
-					if (row) {
-						action(row);
-					}
+				else if (row) {
+					action(row);
 				}
 			});
-			db.get('', (err, row) => {
+			db.get('', () => {
 				resolve(true);
 			});
 		});
@@ -98,8 +95,8 @@ const each = (query, params, action) =>
  * @returns {Promise<boolean>}
  */
 const close = () =>
-	new Promise((resolve, reject) => {
-		this.db.close();
+	new Promise(resolve => {
+		db.close();
 		resolve(true);
 	});
 

@@ -5,7 +5,7 @@ exports.command = 'init';
 
 exports.describe = 'Setup wizard for creating config file';
 
-exports.handler = function(argv) {
+exports.handler = function() {
 	console.log('handler');
 	(async function() {
 		inquirer

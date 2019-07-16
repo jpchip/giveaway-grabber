@@ -117,12 +117,12 @@ async function checkForCaptcha(page, password) {
 		console.log(message);
 		const notification = {
 			title: 'giveaway-grabber',
-			message: message
+			message
 		};
 		sendSystemNotification(notification);
 
 		await page.waitFor(
-			() => !document.querySelector('#auth-captcha-image'),
+			() => !document.querySelector('#auth-captcha-image'), // eslint-disable-line
 			{
 				timeout: 0
 			}
