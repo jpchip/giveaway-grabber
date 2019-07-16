@@ -89,7 +89,6 @@ module.exports = async function(
  * @returns {Promise<void>}
  */
 async function checkForCaptcha(page, password) {
-	console.log('checkForCaptcha');
 	try {
 		await page.waitForSelector('#auth-captcha-image', { timeout: 500 });
 		const url = await page.$eval(

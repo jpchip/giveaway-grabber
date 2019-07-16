@@ -273,7 +273,7 @@ async function navigateToGiveaway(page, giveawayNumber) {
  * This should be unique.
  * @param {Puppeteer.Page} page
  * @param {number} giveawayNumber
- * @returns {Promise<void>}
+ * @returns {Promise<string>}
  */
 async function getGiveawayURL(page, giveawayNumber) {
 	let linkValue = '';
@@ -314,17 +314,28 @@ async function handleGiveawayResult(page) {
 		}
 	}
 	if (!resultTextEl) {
-		console.log('could not find result text, oh well. Moving on!');
+		console.log('could not find result text element, oh well. Moving on!');
 		return false;
 	}
 
+	let resultText = null;
 	try {
-		const resultText = await page.evaluate(
+		resultText = await page.evaluate(
 			resultTextEl => resultTextEl.textContent,
 			resultTextEl
 		);
 		console.log(resultText);
+	} catch (error) {
+		console.log('could not get result text, oh well. Moving on!');
+		return false;
+	}
 
+	if (!resultText) {
+		console.log('could not read result text, oh well. Moving on!');
+		return false;
+	}
+
+	try {
 		if (resultText.includes('won')) {
 			const notification = {
 				title: 'giveaway-grabber',
@@ -359,7 +370,8 @@ async function handleGiveawayResult(page) {
 		}
 		return true;
 	} catch (error) {
-		console.log('could not get result, oh well. Moving on!');
+		console.log('could not process result, oh well. Moving on!');
+		console.log(error);
 		return false;
 	}
 }
