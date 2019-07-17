@@ -40,7 +40,7 @@ module.exports = async function(
 
 	await page.waitForSelector('#ap_password');
 	await page.click('#ap_password');
-	await page.type('#ap_password', password);
+	await page.type('#ap_password', String(password));
 
 	if (rememberMe) {
 		try {
@@ -89,7 +89,6 @@ module.exports = async function(
  * @returns {Promise<void>}
  */
 async function checkForCaptcha(page, password) {
-	console.log('checkForCaptcha');
 	try {
 		await page.waitForSelector('#auth-captcha-image', { timeout: 500 });
 		const url = await page.$eval(
@@ -111,18 +110,18 @@ async function checkForCaptcha(page, password) {
 		//enter password again...
 		await page.waitForSelector('#ap_password');
 		await page.click('#ap_password');
-		await page.type('#ap_password', password);
+		await page.type('#ap_password', String(password));
 
 		const message = 'ENTER CAPTCHA!';
 		console.log(message);
 		const notification = {
 			title: 'giveaway-grabber',
-			message: message
+			message
 		};
 		sendSystemNotification(notification);
 
 		await page.waitFor(
-			() => !document.querySelector('#auth-captcha-image'),
+			() => !document.querySelector('#auth-captcha-image'), // eslint-disable-line
 			{
 				timeout: 0
 			}

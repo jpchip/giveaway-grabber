@@ -150,6 +150,8 @@ the page will be logged like `Winning Entry URL: https://amazon.com/ga/p/335..`.
 
 If you set your `sendgrid_api_key` you'll also receive an email.
 
+In addition, a `wins.txt` file is created in your current directory containing the winning url.
+
 ### Good luck!
 
 ## Database

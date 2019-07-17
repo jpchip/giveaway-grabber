@@ -7,8 +7,10 @@ const {
 } = require('./utils');
 const sgMail = require('@sendgrid/mail');
 const Tesseract = require('tesseract.js');
-const sqlite = require('./database');
+let sqlite = require('./database'); //eslint-disable-line
 const urlTypes = require('./globals');
+const fsPromises = require('fs').promises;
+const path = require('path');
 
 let currentGiveawayUrl = '';
 
@@ -115,7 +117,7 @@ async function checkForCaptcha(page) {
 		console.log(message);
 		const notification = {
 			title: 'giveaway-grabber',
-			message: message
+			message
 		};
 		sendSystemNotification(notification);
 		await page.waitForSelector('.a-dynamic-image', { timeout: 1000 });
@@ -234,8 +236,7 @@ async function hasGiveawayEnded(page) {
  */
 async function hasCostGreaterThanMinimum(page) {
 	try {
-		let resultTextEl;
-		resultTextEl = await page.waitForSelector('.a-price-whole', {
+		const resultTextEl = await page.waitForSelector('.a-price-whole', {
 			timeout: 500
 		});
 		const resultText = await page.evaluate(
@@ -274,7 +275,7 @@ async function navigateToGiveaway(page, giveawayNumber) {
  * This should be unique.
  * @param {Puppeteer.Page} page
  * @param {number} giveawayNumber
- * @returns {Promise<void>}
+ * @returns {Promise<string>}
  */
 async function getGiveawayURL(page, giveawayNumber) {
 	let linkValue = '';
@@ -315,27 +316,42 @@ async function handleGiveawayResult(page) {
 		}
 	}
 	if (!resultTextEl) {
-		console.log('could not find result text, oh well. Moving on!');
+		console.log('could not find result text element, oh well. Moving on!');
 		return false;
 	}
 
+	let resultText = null;
 	try {
-		const resultText = await page.evaluate(
+		resultText = await page.evaluate(
 			resultTextEl => resultTextEl.textContent,
 			resultTextEl
 		);
 		console.log(resultText);
-		const pageUrl = new URL(page.url()).pathname;
+	} catch (error) {
+		console.log('could not get result text, oh well. Moving on!');
+		return false;
+	}
 
-		if (resultText.includes('won')) {
-			const notification = {
-				title: 'giveaway-grabber',
-				message: resultText
-			};
+	if (!resultText) {
+		console.log('could not read result text, oh well. Moving on!');
+		return false;
+	}
+
+	if (resultText.includes('won')) {
+		const notification = {
+			title: 'giveaway-grabber',
+			message: resultText
+		};
+		try {
 			sendSystemNotification(notification);
+		} catch (e) {
+			console.log('could not send winning system notification!');
+		}
 
-			const winningEntryUrl = 'Winning Entry URL: ' + page.url();
-			console.log(winningEntryUrl);
+		const winningEntryUrl = 'Winning Entry URL: ' + currentGiveawayUrl;
+		console.log(winningEntryUrl);
+
+		try {
 			if (
 				process.env.SENDGRID_API_KEY &&
 				process.env.SENDGRID_API_KEY !== ''
@@ -353,17 +369,34 @@ async function handleGiveawayResult(page) {
 				console.log('sending email');
 				await sgMail.send(msg);
 			}
-			//Store that we won
-			await setProcessingCode(urlTypes.WIN, currentGiveawayUrl);
-		} else {
-			// Store that we lost
-			await setProcessingCode(urlTypes.LOST, currentGiveawayUrl);
+		} catch (error) {
+			console.log('could not send winning email');
 		}
-		return true;
-	} catch (error) {
-		console.log('could not get result, oh well. Moving on!');
-		return false;
+		//Store that we won
+		await setProcessingCode(urlTypes.WIN, currentGiveawayUrl);
+
+		try {
+			await fsPromises.appendFile(
+				path.resolve(process.cwd(), 'wins.txt'),
+				winningEntryUrl + '\n'
+			);
+		} catch (e) {
+			console.log('could not add winning entry to wins.txt');
+		}
+
+		try {
+			await page.waitForSelector('input[name="ShipMyPrize"]');
+			await page.click('input[name="ShipMyPrize"]');
+		} catch (error) {
+			console.log(
+				'Tried to click confirm address button, but failed. Re-visit page to claim prize!'
+			);
+		}
+	} else {
+		// Store that we lost
+		await setProcessingCode(urlTypes.LOST, currentGiveawayUrl);
 	}
+	return true;
 }
 
 /**
@@ -519,7 +552,7 @@ async function setProcessingCode(code, giveawayUrl) {
 				[code, giveawayUrl]
 			);
 			if (!responseUpdate) {
-				console.log('Error saving entry status for ' + page.url());
+				console.log('Error saving entry status for ' + giveawayUrl);
 			}
 		}
 	}
@@ -535,7 +568,7 @@ async function setProcessingCode(code, giveawayUrl) {
  * @returns {boolean} true if the page should be skipped or false otherwise.
  */
 async function isSkippable(giveawayUrl) {
-	var response = await sqlite.get(
+	const response = await sqlite.get(
 		'SELECT processCode FROM GG_DATA WHERE sweepURL = ?',
 		[giveawayUrl]
 	);
@@ -588,7 +621,13 @@ async function enterFollowGiveaway(page, repeatAttempt) {
 	}
 }
 
-async function enterWinnerPromoCardGiveaway(page, repeatAttempt) {
+/**
+ * Attempts to enter a promo card giveaway, which could be a video
+ * or a no entry required type
+ * @param {Puppeteer.Page} page
+ * @returns {Promise<void>}
+ */
+async function enterWinnerPromoCardGiveaway(page) {
 	await checkForSignInButton(page);
 	await checkForSwitchAccount(page);
 	await checkForPassword(page);
@@ -634,25 +673,18 @@ async function unfollowGiveaways(page) {
 	await checkForCaptcha(page);
 	try {
 		await page.waitForSelector('.pr-fb-following', { timeout: 5000 });
-		let followButtonLength = 0;
-		let relFollowButtonLength = (await page.$$('.pr-follows-row')).length;
+		const relFollowButtonLength = (await page.$$('.pr-follows-row')).length;
 		console.log('relFollowButtonLength: ', relFollowButtonLength);
-		async function loopButtons(initial, end) {
-			for (let index = initial; index < end; index++) {
-				let i = index + 1;
-				const followButton = `.pr-follows-row:nth-child(${i}) > .a-row > .a-column > .amazon-follow > .pr-fb-container > .pr-fb > .pr-fb-inner > .pr-fb-button`;
-				try {
-					await page.click(followButton, { delay: 500 });
-				} catch (error) {
-					console.log('Could not find follow button');
-				}
+		const followButtonIndexes = new Array(relFollowButtonLength);
+		await asyncForEach(followButtonIndexes, async (val, index) => {
+			const i = index + 1;
+			const followButton = `.pr-follows-row:nth-child(${i}) > .a-row > .a-column > .amazon-follow > .pr-fb-container > .pr-fb > .pr-fb-inner > .pr-fb-button`;
+			try {
+				await page.click(followButton, { delay: 500 });
+			} catch (error) {
+				console.log('Could not find follow button');
 			}
-			followButtonLength = relFollowButtonLength;
-			relFollowButtonLength = (await page.$$('.pr-follows-row')).length;
-		}
-		while (relFollowButtonLength > followButtonLength) {
-			await loopButtons(followButtonLength, relFollowButtonLength);
-		}
+		});
 	} catch (error) {
 		console.log('Could not unfollow');
 	}
@@ -670,7 +702,7 @@ async function enterGiveaways(page, pageNumber) {
 	console.log('Page ' + pageNumber + ' Start:');
 	const giveawayKeys = new Array(24);
 	await asyncForEach(giveawayKeys, async (val, index) => {
-		let i = index + 1;
+		const i = index + 1;
 		let giveawayExists = true;
 		try {
 			await page.waitForSelector(
@@ -700,7 +732,7 @@ async function enterGiveaways(page, pageNumber) {
 			return;
 		}
 
-		let giveawayUrl = await getGiveawayURL(page, i);
+		const giveawayUrl = await getGiveawayURL(page, i);
 		if (giveawayUrl.length > 0) {
 			currentGiveawayUrl = giveawayUrl.substring(
 				0,
@@ -733,7 +765,7 @@ async function enterGiveaways(page, pageNumber) {
 		);
 
 		if (
-			!(process.env.FOLLOW_GIVEAWAY == 'true') &&
+			!(process.env.FOLLOW_GIVEAWAY === 'true') &&
 			followRequired.length > 0
 		) {
 			console.log('giveaway ' + i + ' is of follow type. Next!');
@@ -754,7 +786,7 @@ async function enterGiveaways(page, pageNumber) {
 			}
 
 			//check if ended
-			let ended = await hasGiveawayEnded(page);
+			const ended = await hasGiveawayEnded(page);
 			if (ended) {
 				console.log('giveaway ' + i + ' ended.');
 				//Store that the giveaway has ended.
@@ -764,24 +796,21 @@ async function enterGiveaways(page, pageNumber) {
 			}
 
 			//check if already entered
-			let isAlreadyEntered = await alreadyEntered(page);
+			const isAlreadyEntered = await alreadyEntered(page);
 			if (isAlreadyEntered) {
 				console.log('giveaway ' + i + ' already entered.');
 				//Store that the giveaway was already entered.
 				await setProcessingCode(urlTypes.ALREADY, currentGiveawayUrl);
 				await page.goBack();
 				return;
-			} else {
-				console.log('giveaway ' + i + ' is ready!');
 			}
+			console.log('giveaway ' + i + ' is ready!');
 
 			//check if price is greater than minimum
-			let priceMatch = await hasCostGreaterThanMinimum(page);
+			const priceMatch = await hasCostGreaterThanMinimum(page);
 			if (!priceMatch) {
 				console.log(
-					`giveaway ${i} price smaller than $${
-						process.env.MINIMUM_PRICE
-					}.`
+					`giveaway ${i} price smaller than $${process.env.MINIMUM_PRICE}.`
 				);
 				await setProcessingCode(
 					urlTypes.MINIMUM_PRICE,

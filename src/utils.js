@@ -71,7 +71,7 @@ function checkMinPrice(minPrice, itemPrice) {
 	if (typeof minPrice !== 'number' || typeof itemPrice !== 'number') {
 		return true;
 	}
-	return itemPrice >= minPrice ? true : false;
+	return itemPrice >= minPrice;
 }
 
 module.exports = {

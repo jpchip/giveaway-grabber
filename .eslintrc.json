@@ -3,11 +3,17 @@
     "browser": false,
     "commonjs": true,
     "node": true,
-    "es6": true
+    "es6": true,
+    "jest/globals": true
   },
-  "extends": ["plugin:prettier/recommended"],
-  "plugins": ["prettier"],
+  "extends": ["node", "plugin:prettier/recommended", "plugin:jest/recommended"],
+  "plugins": ["prettier", "jest"],
   "parserOptions": {
     "ecmaVersion": 2017
+  },
+  "rules": {
+    "import/no-commonjs": "off",
+    "import/no-nodejs-modules": "off",
+    "no-sync": "off"
   }
 }

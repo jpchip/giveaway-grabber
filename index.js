@@ -54,21 +54,20 @@ if (args.chromeExecutablePath && args.chromeExecutablePath !== '') {
 	process.env.CHROME_EXECUTABLE_PATH = args.chromeExecutablePath;
 }
 process.env.MINIMUM_PRICE = args.minimum_price || 0;
-process.env.FOLLOW_GIVEAWAY = args.follow_giveaway || false;
-process.env.UNFOLLOW_UPDATES =
-	args.unfollow || args._.includes('unfollow') || false;
+process.env.FOLLOW_GIVEAWAY = args.follow_giveaway ? 'true' : 'false';
+process.env.UNFOLLOW_UPDATES = args.unfollow_updates ? 'true' : 'false';
 
 //start index code
 (async () => {
-	let config = {
+	const config = {
 		headless: false,
 		args: ['--mute-audio']
 	};
-	if (args['remember_me']) {
+	if (args.remember_me) {
 		config.userDataDir = './user_data';
 	}
 	if (process.env.CHROME_EXECUTABLE_PATH) {
-		config.executablePath = args['chromeExecutablePath'];
+		config.executablePath = args.chromeExecutablePath;
 	}
 	const browser = await puppeteer.launch(config);
 	const page = await browser.newPage();
@@ -85,7 +84,7 @@ process.env.UNFOLLOW_UPDATES =
 		password,
 		pageNumber,
 		args['2FA'],
-		args['remember_me']
+		args.remember_me
 	);
 
 	await sqlite.open('./gg.db');
@@ -93,7 +92,7 @@ process.env.UNFOLLOW_UPDATES =
 	//initialize database and perform any upgrades
 	await updateDB();
 
-	if (process.env.UNFOLLOW_UPDATES == 'true') {
+	if (args._.includes('unfollow')) {
 		await unfollowGiveaways(page);
 	}
 	//enter giveaways
