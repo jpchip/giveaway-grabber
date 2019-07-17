@@ -7,7 +7,7 @@ const {
 } = require('./utils');
 const sgMail = require('@sendgrid/mail');
 const Tesseract = require('tesseract.js');
-let sqlite = require('./database');
+let sqlite = require('./database'); //eslint-disable-line
 const urlTypes = require('./globals');
 const fsPromises = require('fs').promises;
 const path = require('path');
@@ -376,8 +376,11 @@ async function handleGiveawayResult(page) {
 		await setProcessingCode(urlTypes.WIN, currentGiveawayUrl);
 
 		try {
-			await fsPromises.appendFile(path.resolve(process.cwd(), 'wins.txt'), winningEntryUrl + '\n');
-		} catch(e) {
+			await fsPromises.appendFile(
+				path.resolve(process.cwd(), 'wins.txt'),
+				winningEntryUrl + '\n'
+			);
+		} catch (e) {
 			console.log('could not add winning entry to wins.txt');
 		}
 
@@ -385,9 +388,10 @@ async function handleGiveawayResult(page) {
 			await page.waitForSelector('input[name="ShipMyPrize"]');
 			await page.click('input[name="ShipMyPrize"]');
 		} catch (error) {
-			console.log('Tried to click confirm address button, but failed. Re-visit page to claim prize!');
+			console.log(
+				'Tried to click confirm address button, but failed. Re-visit page to claim prize!'
+			);
 		}
-
 	} else {
 		// Store that we lost
 		await setProcessingCode(urlTypes.LOST, currentGiveawayUrl);
