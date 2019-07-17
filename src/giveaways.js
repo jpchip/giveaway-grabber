@@ -7,8 +7,10 @@ const {
 } = require('./utils');
 const sgMail = require('@sendgrid/mail');
 const Tesseract = require('tesseract.js');
-const sqlite = require('./database');
+let sqlite = require('./database');
 const urlTypes = require('./globals');
+const fsPromises = require('fs').promises;
+const path = require('path');
 
 let currentGiveawayUrl = '';
 
@@ -335,16 +337,21 @@ async function handleGiveawayResult(page) {
 		return false;
 	}
 
-	try {
-		if (resultText.includes('won')) {
-			const notification = {
-				title: 'giveaway-grabber',
-				message: resultText
-			};
+	if (resultText.includes('won')) {
+		const notification = {
+			title: 'giveaway-grabber',
+			message: resultText
+		};
+		try {
 			sendSystemNotification(notification);
+		} catch (e) {
+			console.log('could not send winning system notification!');
+		}
 
-			const winningEntryUrl = 'Winning Entry URL: ' + page.url();
-			console.log(winningEntryUrl);
+		const winningEntryUrl = 'Winning Entry URL: ' + currentGiveawayUrl;
+		console.log(winningEntryUrl);
+
+		try {
 			if (
 				process.env.SENDGRID_API_KEY &&
 				process.env.SENDGRID_API_KEY !== ''
@@ -362,18 +369,30 @@ async function handleGiveawayResult(page) {
 				console.log('sending email');
 				await sgMail.send(msg);
 			}
-			//Store that we won
-			await setProcessingCode(urlTypes.WIN, currentGiveawayUrl);
-		} else {
-			// Store that we lost
-			await setProcessingCode(urlTypes.LOST, currentGiveawayUrl);
+		} catch (error) {
+			console.log('could not send winning email');
 		}
-		return true;
-	} catch (error) {
-		console.log('could not process result, oh well. Moving on!');
-		console.log(error);
-		return false;
+		//Store that we won
+		await setProcessingCode(urlTypes.WIN, currentGiveawayUrl);
+
+		try {
+			await fsPromises.appendFile(path.resolve(process.cwd(), 'wins.txt'), winningEntryUrl + '\n');
+		} catch(e) {
+			console.log('could not add winning entry to wins.txt');
+		}
+
+		try {
+			await page.waitForSelector('input[name="ShipMyPrize"]');
+			await page.click('input[name="ShipMyPrize"]');
+		} catch (error) {
+			console.log('Tried to click confirm address button, but failed. Re-visit page to claim prize!');
+		}
+
+	} else {
+		// Store that we lost
+		await setProcessingCode(urlTypes.LOST, currentGiveawayUrl);
 	}
+	return true;
 }
 
 /**

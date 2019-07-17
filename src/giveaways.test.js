@@ -1,9 +1,14 @@
 const rewire = require('rewire');
 const giveaways = rewire('./giveaways');
+const sqlite = require('./database');
+
+jest.mock("./database.js");
+giveaways.__set__("sqlite", sqlite);
+sqlite.run.mockReturnValue(Promise.resolve(true));
 
 describe('handleGiveawayResult', () => {
-
 	const handleGiveawayResult = giveaways.__get__('handleGiveawayResult');
+	giveaways.__set__("currentGiveawayUrl", "http://www.example.com");
 
 	describe('if cannot find entry', () => {
 		it('should return false if cannot find element', async () => {
@@ -29,6 +34,7 @@ describe('handleGiveawayResult', () => {
 				evaluate: jest.fn().mockReturnValue('Jared, you won!'),
 				url: jest.fn().mockReturnValue('http://www.example.com')
 			}
+			const result = await handleGiveawayResult(page);
 			expect(await handleGiveawayResult(page)).toEqual(true);
 		});
 	});

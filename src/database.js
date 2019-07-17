@@ -4,7 +4,7 @@ let db;
 
 /**
  * Creates or opens existing database.
- * @param {string} Database location
+ * @param {string} path Database location
  * @returns {Promise<string>}
  */
 const open = path =>
