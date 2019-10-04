@@ -2,6 +2,10 @@
 
 # giveaway-grabber 🎁
 
+| UPDATE: Amazon is shutting down Giveaways on 10/17/19 |
+|---|
+| Thanks for everyone's support on this project, it was lots of fun while it lasted! Read more about the shutdown here: https://the-digital-reader.com/2019/09/27/amazon-is-shutting-down-amazon-giveaways-on-30-november/ |
+
 This script will loop through all the [Amazon giveaways](https://www.amazon.com/ga/giveaways/) and try to submit entries for them.
 
 If there are things you really never want to win (like socks), you can add keywords to the blacklist in the config file
